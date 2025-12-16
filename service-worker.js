@@ -1,21 +1,44 @@
-{
-    "name": "首爾旅行計畫",
-    "short_name": "首爾 App",
-    "description": "即時同步的 Muji 風格首爾旅行計畫追蹤器。",
-    "start_url": "./Seoul_Travel_App_Muji_V2.html",
-    "display": "standalone",
-    "background_color": "#f7f7f7",
-    "theme_color": "#ffffff",
-    "icons": [
-        {
-            "src": "https://placehold.co/192x192/E91E63/ffffff?text=S",
-            "sizes": "192x192",
-            "type": "image/png"
-        },
-        {
-            "src": "https://placehold.co/512x512/E91E63/ffffff?text=S",
-            "sizes": "512x512",
-            "type": "image/png"
-        }
-    ]
-}
+const CACHE_NAME = 'seoul-trip-cache-v3'; // Increased version
+const urlsToCache = [
+    './Seoul_Travel_App_Muji_V2.html',
+    './manifest.json',
+    './service-worker.js'
+];
+
+self.addEventListener('install', (event) => {
+    self.skipWaiting();
+    event.waitUntil(
+        caches.open(CACHE_NAME)
+            .then((cache) => {
+                console.log('Opened cache');
+                return cache.addAll(urlsToCache);
+            })
+    );
+});
+
+self.addEventListener('fetch', (event) => {
+    event.respondWith(
+        caches.match(event.request)
+            .then((response) => {
+                if (response) {
+                    return response;
+                }
+                return fetch(event.request);
+            })
+    );
+});
+
+self.addEventListener('activate', (event) => {
+    const cacheWhitelist = [CACHE_NAME];
+    event.waitUntil(
+        caches.keys().then((cacheNames) => {
+            return Promise.all(
+                cacheNames.map((cacheName) => {
+                    if (cacheWhitelist.indexOf(cacheName) === -1) {
+                        return caches.delete(cacheName);
+                    }
+                })
+            );
+        })
+    );
+});
