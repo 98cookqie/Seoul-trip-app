@@ -1,24 +1,26 @@
 <!DOCTYPE html>
-<html lang="zh-TW">
-</head>
-<body>
- <meta charset="UTF-8">
+ <html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>首爾冬日旅 | Seoul Trip</title>
     
-    <!-- PWA: Add Manifest Link -->
+    <!-- PWA Manifest -->
     <link rel="manifest" href="manifest.json">
-    
+
     <!-- Google Fonts: Noto Sans (UI) & Noto Serif (Headers) -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@300;400;500;700&family=Noto+Serif+TC:wght=400;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@300;400;500;700&family=Noto+Serif+TC:wght@400;700&display=swap" rel="stylesheet">
     
     <!-- Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
     
     <!-- FontAwesome (Icons) -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+    <!-- Chart.js for Wallet Charts -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
     <!-- Configuration for Tailwind to match Muji Style -->
     <script>
@@ -128,9 +130,102 @@
             background-color: #57534e;
             border-color: #57534e;
         }
+
+        /* --- 升級版開場動畫 (Intro) --- */
+        #intro-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            background-color: #fdfcf8;
+            z-index: 9999;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            overflow: hidden;
+            /* 3秒動畫結束後淡出隱藏 */
+            animation: hideIntro 0.5s ease-out 3s forwards;
+            pointer-events: none; /* 避免擋住點擊 */
+        }
+
+        #intro-text {
+            font-family: 'Noto Serif TC', serif;
+            font-size: 5rem;
+            font-weight: 700;
+            color: #44403c;
+            letter-spacing: 0.1em;
+            text-transform: uppercase;
+            white-space: nowrap;
+            
+            /* 縮放中心點設定在 'S' 的位置 (大約左側 12% 處) */
+            transform-origin: 12% 55%; 
+            
+            /* 3秒縮放動畫 */
+            animation: zoomThrough 3s cubic-bezier(0.7, 0, 0.2, 1) forwards;
+        }
+
+        /* 針對 'S' 的特別樣式 */
+        .intro-s {
+            display: inline-block;
+            background-clip: text;
+            -webkit-background-clip: text;
+            color: #44403c; /* 初始顏色 */
+            
+            /* S 的變色動畫 */
+            animation: colorMorph 3s ease-in-out forwards;
+        }
+
+        /* 縮放並穿過文字的動畫 */
+        @keyframes zoomThrough {
+            0% {
+                opacity: 0;
+                transform: scale(0.5); /* 初始略小 */
+            }
+            15% {
+                opacity: 1;
+                transform: scale(1); /* 正常大小停留一下 */
+            }
+            40% {
+                transform: scale(2); /* 開始放大 */
+            }
+            100% {
+                opacity: 0; /* 最後淡出 */
+                transform: scale(150); /* 巨大縮放，模擬穿過 */
+            }
+        }
+
+        /* S 變成彩色的動畫 */
+        @keyframes colorMorph {
+            0%, 20% {
+                color: #44403c; /* 保持深灰 */
+            }
+            40% {
+                color: transparent;
+                background-image: linear-gradient(135deg, #FF9A9E 0%, #FECFEF 100%); /* 粉彩漸層 */
+            }
+            100% {
+                color: transparent;
+                background-image: linear-gradient(135deg, #a18cd1 0%, #fbc2eb 100%); /* 變為夢幻紫粉 */
+            }
+        }
+
+        /* 隱藏遮罩層 */
+        @keyframes hideIntro {
+            to {
+                opacity: 0;
+                visibility: hidden;
+            }
+        }
     </style>
 </head>
 <body class="font-sans antialiased h-screen flex flex-col overflow-hidden">
+
+    <!-- INTRO ANIMATION -->
+    <div id="intro-overlay">
+        <!-- 將 S 用 span 包起來以獨立變色 -->
+        <h1 id="intro-text"><span class="intro-s">S</span>EOUL</h1>
+    </div>
 
     <!-- Header -->
     <header class="bg-muji-bg px-6 pt-12 pb-4 sticky top-0 z-10 border-b border-stone-200/50">
@@ -209,15 +304,31 @@
                             <option value="Nick">Nick</option>
                         </select>
                     </div>
-                    <input type="number" id="expense-amount" placeholder="₩ 韓幣金額" class="w-full bg-white border border-stone-200 rounded-lg px-3 py-3 text-sm outline-none focus:border-muji-primary">
+                    <div class="flex gap-2">
+                        <input type="number" id="expense-amount" placeholder="₩ 韓幣金額" class="flex-[2] bg-white border border-stone-200 rounded-lg px-3 py-3 text-sm outline-none focus:border-muji-primary">
+                        <select id="expense-category" class="flex-[1] bg-white border border-stone-200 rounded-lg px-2 py-3 text-sm outline-none focus:border-muji-primary text-stone-700">
+                            <option value="food">食</option>
+                            <option value="transport">交通</option>
+                            <option value="stay">住宿</option>
+                            <option value="other">其他</option>
+                        </select>
+                    </div>
                     <button onclick="addExpense()" class="w-full bg-muji-primary text-white py-3 rounded-lg shadow-md active:scale-95 transition text-sm font-medium tracking-wide">
                         記帳
                     </button>
                 </div>
             </div>
 
-            <!-- Expense List & Summary -->
-            <div class="px-6">
+            <!-- View Toggle -->
+            <div class="px-6 mb-4 flex justify-center">
+                <div class="bg-stone-100 p-1 rounded-lg inline-flex">
+                    <button onclick="toggleWalletView('list')" id="btn-view-list" class="px-4 py-1.5 rounded-md text-xs font-bold bg-white text-stone-800 shadow-sm transition-all">列表</button>
+                    <button onclick="toggleWalletView('chart')" id="btn-view-chart" class="px-4 py-1.5 rounded-md text-xs font-bold text-stone-500 hover:text-stone-800 transition-all">圖表分析</button>
+                </div>
+            </div>
+
+            <!-- Expense List & Summary (Default View) -->
+            <div id="wallet-view-list" class="px-6">
                 <!-- Summary Cards -->
                 <div class="grid grid-cols-2 gap-3 mb-6">
                     <div class="bg-stone-50 p-3 rounded-lg border border-stone-200 text-center">
@@ -240,6 +351,16 @@
                 <ul id="expense-list" class="space-y-3 pb-20">
                     <!-- Javascript will render list here -->
                 </ul>
+            </div>
+
+            <!-- Chart View (Hidden by default) -->
+            <div id="wallet-view-chart" class="px-6 hidden pb-20">
+                <div class="bg-white p-4 rounded-xl border border-stone-100 shadow-sm">
+                    <canvas id="expenseChart"></canvas>
+                </div>
+                <div class="mt-6 space-y-3" id="category-summary-list">
+                    <!-- Category breakdown text will go here -->
+                </div>
             </div>
         </div>
 
@@ -278,7 +399,7 @@
             </div>
         </div>
 
-        <!-- ================= SECTION 4: INFO (資訊) (Static Weather) ================= -->
+        <!-- ================= SECTION 4: INFO (資訊) ================= -->
         <div id="section-info" class="page-section">
             <div class="px-6 py-4 space-y-6">
 
@@ -303,7 +424,7 @@
                     </div>
                 </div>
                 
-                <!-- 2. Weather Widget (Mock KMA Style) -->
+                <!-- 2. Weather Widget -->
                 <div class="bg-white rounded-xl p-5 shadow-sm border border-stone-100">
                     <div class="flex justify-between items-center mb-4">
                         <h3 class="text-sm font-bold text-stone-400 tracking-wider uppercase">Seoul Weather 首爾天氣</h3>
@@ -369,12 +490,35 @@
                     <h3 class="text-sm font-bold text-stone-400 mb-2 tracking-wider uppercase">Accommodation 住宿資訊</h3>
                     <h2 class="text-xl font-serif text-stone-800 mb-1">Seoul N Hostel</h2>
                     <p class="text-xs text-stone-500 mb-4 w-3/4">159-16 Mareunnae-ro, Jung District, Seoul</p>
-                    <a href="https://www.google.com/maps/search/?api=1&query=Seoul+N+Hostel+159-16+Mareunnae-ro" target="_blank" class="inline-block bg-stone-800 text-white text-xs px-4 py-2 rounded-full shadow-md">
+                    <a href="https://maps.app.goo.gl/xuu6swMwXezqVpUk6" target="_blank" class="inline-block bg-stone-800 text-white text-xs px-4 py-2 rounded-full shadow-md">
                         <i class="fa-solid fa-map-location-dot mr-1"></i> 導航
                     </a>
                 </div>
 
-                <!-- 4. Emergency Info -->
+                <!-- 4. Electronic Arrival Card (K-ETA / Q-Code) - NEW SECTION -->
+                <div class="bg-white rounded-xl p-5 shadow-sm border border-stone-100">
+                    <h3 class="text-sm font-bold text-stone-400 mb-3 tracking-wider uppercase">Arrival Card 電子入境卡</h3>
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                        <!-- Image 1 Placeholder -->
+                        <div class="border border-stone-200 rounded-lg p-2 bg-stone-50 text-center">
+                            <div class="aspect-[3/4] bg-stone-200 rounded flex items-center justify-center mb-2 overflow-hidden">
+                                <!-- Replace src with actual path if files are local, e.g. "IMG_2066.jpg" -->
+                                <img src="IMG_2066.jpg" alt="電子入境卡截圖 1" class="w-full h-full object-cover" onerror="this.src='https://placehold.co/300x400/e5e5e5/a3a3a3?text=IMG_2066.jpg';">
+                            </div>
+                            <span class="text-xs text-stone-500">IMG_2066.jpg</span>
+                        </div>
+                        <!-- Image 2 Placeholder -->
+                        <div class="border border-stone-200 rounded-lg p-2 bg-stone-50 text-center">
+                            <div class="aspect-[3/4] bg-stone-200 rounded flex items-center justify-center mb-2 overflow-hidden">
+                                <!-- Replace src with actual path if files are local, e.g. "IMG_2067.jpg" -->
+                                <img src="IMG_2067.jpg" alt="電子入境卡截圖 2" class="w-full h-full object-cover" onerror="this.src='https://placehold.co/300x400/e5e5e5/a3a3a3?text=IMG_2067.jpg';">
+                            </div>
+                            <span class="text-xs text-stone-500">IMG_2067.jpg</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 5. Emergency Info -->
                 <div class="bg-red-50 p-5 rounded-xl border border-red-100">
                     <h3 class="text-red-800 font-bold mb-3 flex items-center">
                         <i class="fa-solid fa-kit-medical mr-2"></i> 緊急聯絡 (僅供查閱)
@@ -395,7 +539,7 @@
                     </div>
                 </div>
 
-                <!-- 5. Tips (Bottom) -->
+                <!-- 6. Tips (Bottom) -->
                 <div class="bg-stone-800 text-stone-300 p-5 rounded-xl">
                     <h3 class="text-white font-serif mb-3"><i class="fa-solid fa-triangle-exclamation mr-2 text-amber-500"></i>注意事項 & 禁忌</h3>
                     <ul class="text-sm space-y-2 list-disc list-inside">
@@ -485,19 +629,15 @@
 
     <!-- Scripts -->
     <script>
-        // PWA Service Worker Registration
+        // --- Service Worker Registration ---
         if ('serviceWorker' in navigator) {
             window.addEventListener('load', () => {
                 navigator.serviceWorker.register('./service-worker.js')
-                    .then(registration => {
-                        console.log('ServiceWorker registration successful with scope: ', registration.scope);
-                    }, err => {
-                        console.log('ServiceWorker registration failed: ', err);
-                    });
+                    .then(reg => console.log('Service Worker Registered'))
+                    .catch(err => console.log('Service Worker Error', err));
             });
         }
-    </script>
-    <script>
+
         // --- Data & State ---
         // 類別顏色映射
         const categoryMap = {
@@ -509,54 +649,47 @@
             'Other': { name: '其他', color: 'bg-stone-400', icon: 'fa-circle' }
         };
 
-        // 旅遊行程資料 (已加入 category 和 details)
+        // 旅遊行程資料
         const itineraryData = [
             {
                 date: "12/18", day: "Day 1",
                 events: [
-                    { time: "18:15", title: "抵達仁川機場", desc: "降落，準備入境", icon: "fa-plane-arrival", category: "Transport" },
+                    { time: "18:15", title: "抵達仁川機場", desc: "降落，準備入境", icon: "fa-plane-arrival" },
                     { 
                         time: "19:00", 
                         title: "前往市區", 
-                        desc: "機場巴士 (6001線) 或 包車", 
+                        desc: "選擇一：機場巴士(6001線) 約1.5小時，17,000韓元/人\n選擇二：包車/汽車 約1小時15分，600台幣/人", 
                         highlight: true, 
                         icon: "fa-bus", 
-                        category: "Transport" ,
-                        link: "Seoul N Hostel",
+                        link: "https://maps.app.goo.gl/xuu6swMwXezqVpUk6",
                         details: {
                             story: "6001號機場巴士是前往東大門、明洞地區最方便的選擇之一，價格實惠且不必轉車。冬季時，務必在候車亭內等候，避免受寒。",
-                            guide: "從仁川機場入境大廳出來後，按照指示牌找到6001號巴士站牌。上車後記得使用 T-Money 卡或購買車票。車程約1小時20分鐘。",
+                            guide: "從仁川機場入境大廳出來後，按照指示牌找到6001號巴士站牌。上車後記得使用 T-Money 卡或購買車票。",
                             tips: [
                                 { type: "重要提醒", text: "巴士車票約 17,000 KRW，準備好現金或確保 T-Money 餘額充足。" }
                             ]
                         }
                     },
-                    { time: "20:30", title: "Check-in", desc: "Seoul N Hostel", icon: "fa-bed", category: "Accommodation", link: "Seoul N Hostel" },
+                    { time: "20:30", title: "Check-in", desc: "Seoul N Hostel", icon: "fa-bed", link: "https://maps.app.goo.gl/xuu6swMwXezqVpUk6" },
                     { 
                         time: "21:00", 
-                        title: "晚餐：肉典食堂", 
-                        desc: "美味烤肉 (東大門店)", 
+                        title: "晚餐：烤肉", 
+                        desc: "選項如下 (點擊導航)：", 
                         icon: "fa-utensils", 
-                        category: "Restaurant", 
-                        link: "Yukjeon Sikdang Dongdaemun",
+                        subItems: [
+                            { name: "1. 肉典食堂", query: "https://maps.app.goo.gl/AwpU7SAtDeqDkPC49" },
+                            { name: "2. 五花肉大總統", query: "https://maps.app.goo.gl/T5AxezQenBJoT6Hp7" }
+                        ],
                         details: {
-                            story: "肉典食堂以其頂級的厚切五花肉和木炭烤肉而聞名，是當地人也愛去的排隊名店。餐廳會提供烤肉服務，不用自己動手。",
-                            guide: "建議在晚上8點後前往，可以避開最長的排隊人潮。店內小菜無限續加，特別推薦大醬湯。",
+                            story: "首爾的烤肉文化不可錯過。肉典食堂以厚切五花肉與專人代烤聞名；五花肉大總統則以竹筒熟成五花肉為特色。",
+                            guide: "兩家都是東大門/新設洞附近的人氣名店，建議避開正餐尖峰時間以免久候。",
                             tips: [
-                                { type: "必點菜單", text: "厚切五花肉 (Samgyeopsal) 與豬頸肉 (Moksal)。" },
-                                { type: "必吃美食", text: "一定要搭配店家特製的蔥絲沙拉和沾鹽一起吃。" }
+                                { type: "必點菜單", text: "厚切五花肉 (Samgyeopsal)、竹筒五花肉。" },
+                                { type: "必吃美食", text: "搭配大醬湯或冷麵解膩。" }
                             ]
                         }
                     },
-                    { 
-                        time: "Travel", 
-                        title: "移動", 
-                        desc: "地鐵20分鐘", 
-                        isTravel: true,
-                        category: "Transport",
-                        linkUrl: "https://naver.me/5464F0VB" 
-                    },
-                    { time: "22:30", title: "宵夜：BHC 炸雞", desc: "＋逛逛附近衣服批發盛況", icon: "fa-drumstick-bite", category: "Restaurant", link: "BHC Chicken" }
+                    { time: "22:30", title: "宵夜：BHC 炸雞", desc: "＋逛逛附近衣服批發盛況", icon: "fa-drumstick-bite", link: "https://maps.app.goo.gl/GCE9XvyhQftPSuMF6" }
                 ]
             },
             {
@@ -565,9 +698,8 @@
                     { 
                         time: "Travel", 
                         title: "移動", 
-                        desc: "2014號巴士12分鐘", 
+                        desc: "2014號巴士 12分鐘", 
                         isTravel: true,
-                        category: "Transport",
                         linkUrl: "https://naver.me/FUQxbA0l" 
                     },
                     { 
@@ -575,51 +707,57 @@
                         title: "廣藏市場", 
                         desc: "糯米麻花捲、綠豆煎餅、紫菜飯捲、冷蕎麥麵", 
                         icon: "fa-store", 
-                        category: "Attraction", 
                         link: "Gwangjang Market",
                         details: {
                             story: "廣藏市場是韓國歷史最悠久的傳統市場，起源於1905年。它現在已成為首爾最具代表性的美食天堂，保留了傳統市集的喧囂和人情味。",
-                            guide: "市場主要分為美食區和布料區。美食區位於中央走廊，建議在人少的早上前往，避開晚餐高峰。",
+                            guide: "市場主要分為美食區和布料區。建議在早上前往，避開晚餐高峰。",
                             tips: [
-                                { type: "必吃美食", text: "綠豆煎餅 (Bindae-tteok)：用綠豆磨成的漿炸製，外酥內軟，配上洋蔥醬油。" },
-                                { type: "必點菜單", text: "麻藥飯捲 (Mayak Gimbap)：因為吃了會上癮而得名，尺寸小巧，沾芥末醬油是經典吃法。" },
-                                { type: "必買伴手禮", text: "傳統韓服布料或麻油 (但很重)。" }
+                                { type: "必吃美食", text: "綠豆煎餅 (Bindae-tteok)。" },
+                                { type: "必點菜單", text: "麻藥飯捲 (Mayak Gimbap)。" }
                             ]
                         } 
                     },
                     { 
                         time: "Travel", 
                         title: "移動", 
-                        desc: "巴士30分鐘", 
+                        desc: "巴士 30分鐘", 
                         isTravel: true,
-                        category: "Transport",
                         linkUrl: "https://naver.me/FnVHdQGL" 
                     },
-                    { time: "11:00", title: "北村韓屋村 / 三清洞", desc: "含三清洞壁畫街散策", icon: "fa-camera", category: "Attraction", link: "Bukchon Hanok Village" },
+                    { time: "11:00", title: "北村韓屋村 / 三清洞", desc: "含三清洞壁畫街散策", icon: "fa-camera", link: "Bukchon Hanok Village" },
                     { 
                         time: "12:00", 
-                        title: "午餐：三清洞摩西年糕鍋", 
-                        desc: "經典韓式年糕鍋，口味多樣，吃完還可以炒飯。", 
+                        title: "美味午餐", 
+                        desc: "選項如下 (點擊導航)：", 
                         icon: "fa-utensils",
-                        category: "Restaurant",
                         subItems: [
-                            { name: "摩西年糕鍋", query: "Mukshidonna Samcheongdong" },
-                            { name: "黃生家刀切麵", query: "Hwangsaengga Kalguksu" }
-                        ],
-                        details: {
-                            story: "摩西年糕鍋是韓國年輕人最愛的人氣連鎖店。它以平價且多樣化的年糕鍋配料選擇聞名，是韓屋村附近的午餐首選。",
-                            guide: "這裡的年糕鍋是兩人份起點，可以選擇海鮮、部隊或烤肉等口味，記得在點餐時就告訴服務生是否要加起司或麵條。",
-                            tips: [
-                                { type: "必點菜單", text: "部隊鍋口味，最後一定要加點「炒飯」 (Bokkeumbap)！" }
-                            ]
-                        }
+                            { name: "三清洞摩西年糕鍋", query: "https://maps.app.goo.gl/VzuKUJ2dFFSvtM25A" },
+                            { name: "三清洞牛肉湯", query: "https://maps.app.goo.gl/5AZpq3AuQq7nPqBt7" }, 
+                            { name: "黃生家刀切麵", query: "https://maps.app.goo.gl/Yo49wwxWHxUG54Ra8" }
+                        ]
+                    },
+                    { 
+                        time: "Travel", 
+                        title: "移動", 
+                        desc: "鐘路11號巴士 30分鐘", 
+                        isTravel: true,
+                        linkUrl: "https://naver.me/5V81ifdD"
+                    },
+                    { 
+                        time: "14:30", 
+                        title: "南大門市場", 
+                        desc: "批發/童裝", 
+                        icon: "fa-bag-shopping",
+                        subItems: [
+                            { name: "卡梅谷手工王包子", query: "https://maps.app.goo.gl/91Jaf4Q5iC7VGjuH9" },
+                            { name: "Plan B: 首爾站樂天Outlet", query: "Lotte Outlets Seoul Station" }
+                        ]
                     },
                     { // Bus Segment
                         time: "Travel", 
                         title: "移動 (巴士)", 
                         desc: "406, 401, 505巴士 10分鐘", 
                         isTravel: true,
-                        category: "Transport",
                         linkUrl: "https://naver.me/xslXSsTO" 
                     },
                     { // Walk Segment
@@ -627,32 +765,44 @@
                         title: "移動 (步行)", 
                         desc: "走路 15分鐘", 
                         isTravel: true,
-                        category: "Transport",
                         linkUrl: "https://naver.me/Ig45dKD6" 
                     },
                     { 
                         time: "16:00", 
                         title: "N 首爾塔", 
-                        desc: "搭纜車電梯\n明洞搭05或03循環巴士直達山頂", 
+                        desc: "搭纜車電梯 (日落 17:20)\n明洞搭05或03循環巴士直達山頂", 
                         icon: "fa-tower-broadcast", 
-                        category: "Attraction", 
                         link: "N Seoul Tower",
                         details: {
                             story: "N 首爾塔位於南山頂，是首爾的地標性建築。塔上的數位觀景台提供360度全景視野，冬季夜晚景色尤其壯觀。著名的愛情鎖牆也在此處。",
-                            guide: "上山有多種方式：纜車、循環巴士（02, 03, 05號）。循環巴士最為經濟且直接到達，但如果想體驗纜車浪漫，則需從明洞站步行至纜車站。",
+                            guide: "可以到纜車電梯直上纜車搭乘處。上山有多種方式：纜車、循環巴士（02, 03, 05號）。循環巴士最為經濟且直接到達，但如果想體驗纜車浪漫，則需從明洞站步行至纜車站。",
                             tips: [
                                 { type: "重要預約代號", text: "如果選擇纜車，建議提前在線上訂票，節省排隊時間。" },
                                 { type: "必買伴手禮", text: "在山下或塔頂的紀念品店購買一個愛情鎖掛上去。" }
                             ]
                         } 
                     },
+                    { // New Link for Cable Car Elevator
+                        time: "Travel", 
+                        title: "纜車電梯", 
+                        desc: "前往搭乘處", 
+                        isTravel: true,
+                        linkUrl: "https://maps.app.goo.gl/vMcPPfzL3UnDCUZ5A"
+                    },
+                    { // Bus Segment (New)
+                        time: "Travel", 
+                        title: "移動", 
+                        desc: "406, 401, 143 巴士 15分鐘", 
+                        isTravel: true,
+                        linkUrl: "https://naver.me/5OtHHlQ4" 
+                    },
                     { 
                         time: "19:00", 
                         title: "明洞商圈 & 晚餐", 
-                        desc: "明洞新世界百貨 (聖誕燈飾)", 
+                        desc: "明洞新世界百貨", 
                         icon: "fa-shop",
-                        category: "Shopping",
                         subItems: [
+                            { name: "糖葫蘆小哥 (Noon Square前)", query: "Noon Square" },
                             { name: "神仙雪濃湯", query: "Sinseon Seolnongtang Myeongdong" },
                             { name: "味成屋雪濃湯", query: "Miseongok" }
                         ],
@@ -669,32 +819,29 @@
             {
                 date: "12/20", day: "Day 3",
                 events: [
-                    { time: "07:30", title: "晨間慢跑", desc: "駱山公園、梨花洞壁畫村", icon: "fa-person-running", category: "Attraction", link: "Naksan Park" },
+                    { time: "07:30", title: "晨間慢跑", desc: "駱山公園 (單程2.1km上坡)、梨花洞壁畫村", icon: "fa-person-running", link: "Naksan Park" },
                     { 
                         time: "10:00", 
                         title: "東大門早午餐", 
                         desc: "美味韓食", 
                         icon: "fa-bowl-food",
-                        category: "Restaurant",
                         subItems: [
                             { name: "香港飯店0410PLUS", query: "Hong Kong Banjeom 0410 Dongdaemun" },
-                            { name: "海苔飯捲", query: "Dongdaemun Kimbap" }
+                            { name: "海苔飯捲", query: "https://maps.app.goo.gl/VkmVHP1PaFgTTojW6" }
                         ]
                     },
                     { 
                         time: "Travel", 
                         title: "移動", 
-                        desc: "地鐵20分鐘", 
+                        desc: "地鐵 20分鐘", 
                         isTravel: true,
-                        category: "Transport",
                         linkUrl: "https://naver.me/xnro2gSz"
                     },
                     { // --- MODIFIED: ADDED '站' ---
                         time: "12:00", 
                         title: "狎鷗亭羅德奧站", 
-                        desc: "Jayeondo鹽麵包、HDEX HYM DOSAN", 
+                        desc: "逛逛行程", 
                         icon: "fa-bag-shopping",
-                        category: "Shopping",
                         subItems: [
                             { name: "Jayeondo 鹽麵包", query: "Jayeondo Sogeumppang Apgujeong" },
                             { name: "HDEX HYM DOSAN", query: "HDEX HYM DOSAN" }
@@ -710,25 +857,17 @@
                     { 
                         time: "13:00", 
                         title: "醫美行程", 
-                        desc: "V-moment (重要預約)", 
+                        desc: "V-moment", 
                         highlight: true, 
                         icon: "fa-sparkles", 
-                        category: "Other", 
-                        link: "V-moment Seoul",
-                        details: {
-                            story: "V-moment 在韓國醫美界有不錯的口碑，通常服務細膩，且對外國顧客流程清晰。但請注意術後護理。",
-                            guide: "預約時請務必確認價格和服務內容。務必攜帶預約時的確認信函和個人證件。",
-                            tips: [
-                                { type: "重要預約代號", text: "預約代號：VIP20241220-KM (請核對您的預約單)" }
-                            ]
-                        }
+                        link: "https://maps.app.goo.gl/xmni7wxBmHpTjxH48"
+                        // Details removed as requested
                     },
                     { 
                         time: "Travel", 
                         title: "移動", 
-                        desc: "巴士20分鐘", 
+                        desc: "巴士 20分鐘", 
                         isTravel: true,
-                        category: "Transport",
                         linkUrl: "https://naver.me/GmtvjJbO"
                     },
                     { 
@@ -736,7 +875,6 @@
                         title: "星空圖書館", 
                         desc: "@ Coex Mall", 
                         icon: "fa-book-open", 
-                        category: "Attraction", 
                         link: "Starfield Library",
                         details: {
                             story: "星空圖書館位於 COEX Mall 中心，是首爾的打卡熱點，以其高達13公尺的巨大書架和開放式設計著稱。夜晚的燈光效果非常壯觀。",
@@ -749,12 +887,11 @@
                     { 
                         time: "Travel", 
                         title: "移動", 
-                        desc: "地鐵50分鐘", 
+                        desc: "地鐵 50分鐘", 
                         isTravel: true,
-                        category: "Transport",
                         linkUrl: "https://naver.me/FlcwoRT4"
                     },
-                    { time: "18:00", title: "聖誕氛圍", desc: "光化門聖誕市集、清溪川燈節 (六日18:00~22:00)", icon: "fa-tree", category: "Attraction", link: "Gwanghwamun Square" }
+                    { time: "18:00", title: "聖誕氛圍", desc: "光化門聖誕市集、清溪川燈節 (六日18:00~22:00)", icon: "fa-tree", link: "Gwanghwamun Square" }
                 ]
             },
             {
@@ -765,6 +902,17 @@
                     { time: "13:30", title: "抵達溫暖的家", desc: "平安歸來", icon: "fa-house", category: "Other" }
                 ]
             }
+        ];
+
+        // --- FIXED: Define defaultChecklist here ---
+        const defaultChecklist = [
+            { text: "韓國線上入境卡 (Q-Code)", checked: false },
+            { text: "Esim / 網卡", checked: false },
+            { text: "轉接頭 (圓孔)", checked: false },
+            { text: "T-money 悠遊卡", checked: false },
+            { text: "護照", checked: false },
+            { text: "台幣現金", checked: false },
+            { text: "行動電源", checked: false }
         ];
 
         // --- Initialization ---
@@ -829,32 +977,53 @@
             
             let html = '';
             day.events.forEach((event, index) => {
-                const category = categoryMap[event.category] || categoryMap['Other'];
                 const timeColor = event.highlight ? 'text-muji-highlight' : 'text-muji-primary';
-                
-                // Card Header
-                const cardHeader = event.isTravel 
-                    ? `<span class="text-xs text-stone-500 font-mono">${event.desc}</span>`
-                    : `
-                        <div class="flex items-center space-x-2">
-                            <span class="${category.color} text-white px-2 py-0.5 rounded-full text-[10px] font-bold uppercase">${category.name}</span>
-                            ${event.highlight ? '<span class="text-xs text-red-500 font-bold ml-2"><i class="fa-solid fa-star"></i> 重要</span>' : ''}
-                        </div>
-                      `;
                 
                 // Travel Card - Simplified
                 if (event.isTravel) {
+                    let travelContent = `<span class="text-stone-500">${event.desc}</span>`;
+                    if (event.linkUrl) {
+                        travelContent += ` <a href="${event.linkUrl}" target="_blank" class="ml-1 text-muji-highlight underline"><i class="fa-solid fa-arrow-up-right-from-square"></i></a>`;
+                    }
                     html += `
                         <div class="flex items-center gap-4 bg-stone-100 p-3 rounded-xl border border-stone-200">
                             <i class="fa-solid fa-route text-2xl text-stone-400 min-w-[30px] text-center"></i>
                             <div class="flex-1">
                                 <h4 class="font-bold text-stone-700">${event.title}</h4>
-                                ${cardHeader}
+                                <div class="text-xs text-stone-500 font-mono">${travelContent}</div>
                             </div>
-                            ${event.linkUrl ? `<a href="${event.linkUrl}" target="_blank" class="text-muji-highlight text-lg px-2"><i class="fa-solid fa-location-arrow"></i></a>` : ''}
                         </div>
                     `;
                 } else {
+                    // Sub Items (Buttons)
+                    let linkBtn = '';
+                    if (event.link) {
+                        // Check if link is URL or Query
+                        const href = event.link.startsWith('http') ? event.link : `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(event.link)}`;
+                        linkBtn = `
+                            <a href="${href}" target="_blank" 
+                               onclick="event.stopPropagation()"
+                               class="inline-block mt-2 text-xs bg-stone-100 text-stone-600 px-3 py-1.5 rounded-md hover:bg-stone-200">
+                               <i class="fa-solid fa-map-location-dot mr-1"></i> 地圖
+                            </a>
+                        `;
+                    }
+                    if (event.subItems) {
+                        linkBtn = `<div class="mt-3 flex flex-wrap gap-2">`;
+                        event.subItems.forEach(item => {
+                            // Check if item query is a URL or search query
+                            const itemHref = item.query.startsWith('http') ? item.query : `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(item.query)}`;
+                            linkBtn += `
+                                <a href="${itemHref}" target="_blank" 
+                                   onclick="event.stopPropagation()"
+                                   class="inline-block text-xs border border-stone-200 text-stone-600 px-3 py-1.5 rounded-md hover:bg-stone-50 hover:border-stone-300">
+                                   <i class="fa-solid fa-location-dot mr-1 text-stone-400"></i> ${item.name}
+                                </a>
+                            `;
+                        });
+                        linkBtn += `</div>`;
+                    }
+
                     // Standard Clickable Card
                     html += `
                         <div onclick="openDetailModal(${dayIndex}, ${index})"
@@ -866,8 +1035,8 @@
                                 </div>
                                 <i class="fa-solid ${event.icon} text-2xl text-stone-300"></i>
                             </div>
-                            <p class="text-sm text-muji-sub mt-2">${event.desc}</p>
-                            <div class="mt-2 pt-2 border-t border-stone-50/50">${cardHeader}</div>
+                            <p class="text-sm text-muji-sub mt-2">${event.desc.replace(/\n/g, '<br>')}</p>
+                            ${linkBtn}
                         </div>
                     `;
                 }
@@ -879,31 +1048,29 @@
             const event = itineraryData[dayIndex].events[eventIndex];
             const modalOverlay = document.getElementById('detail-modal-overlay');
             
-            // Check if details exist (e.g., transport and accommodation may not have details)
+            // Check if details exist
             if (!event.details) {
                 // If no details, just open the map link or show a simplified view
                 if (event.link) {
-                    window.open(`https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(event.link)}`, '_blank');
+                    const href = event.link.startsWith('http') ? event.link : `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(event.link)}`;
+                    window.open(href, '_blank');
                     return;
                 }
                 // Fallback to simple description if no map link either
-                // NOTE: Using a custom modal is better than alert(), but for simplicity in this context, we will use alert() as a quick info box fallback.
-                console.warn(`[${event.time}] ${event.title}\n\n${event.desc}\n\n此行程無詳細攻略。`);
+                alert(`[${event.time}] ${event.title}\n\n${event.desc}\n\n此行程無詳細攻略。`);
                 return;
             }
 
-            const category = categoryMap[event.category] || categoryMap['Other'];
-            
             // Set Modal Content
             document.getElementById('modal-title').innerText = event.title;
             document.getElementById('modal-time').innerText = event.time;
-            document.getElementById('modal-story').innerText = event.details.story;
-            document.getElementById('modal-guide').innerText = event.details.guide;
+            document.getElementById('modal-story').innerText = event.details.story || "暫無詳細故事";
+            document.getElementById('modal-guide').innerText = event.details.guide || "暫無詳細攻略";
             
             // Map Link
             const mapLink = document.getElementById('modal-map-link');
             if (event.link) {
-                mapLink.href = `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(event.link)}`;
+                mapLink.href = event.link.startsWith('http') ? event.link : `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(event.link)}`;
                 mapLink.style.display = 'block';
             } else {
                 mapLink.style.display = 'none';
@@ -952,6 +1119,8 @@
 
 
         // --- WALLET Section Logic ---
+        let expenseChart = null; // Global variable for chart instance
+
         function initWallet() {
             // Rate
             const savedRate = localStorage.getItem('krw_rate');
@@ -966,6 +1135,7 @@
             localStorage.setItem('krw_rate', rate);
             renderExpenseList(); // Update totals in list
             calculateTotal(); // Update calculator
+            renderChart(); // Update chart
         }
 
         function calculateTotal() {
@@ -1003,6 +1173,7 @@
             const name = document.getElementById('expense-name').value;
             const amount = parseFloat(document.getElementById('expense-amount').value);
             const payer = document.getElementById('expense-payer').value;
+            const category = document.getElementById('expense-category').value;
             
             if (!name || isNaN(amount)) return;
 
@@ -1012,6 +1183,7 @@
                 name: name,
                 amount: amount,
                 payer: payer,
+                category: category,
                 date: new Date().toLocaleDateString()
             });
             localStorage.setItem('expenses', JSON.stringify(expenses));
@@ -1021,6 +1193,9 @@
             document.getElementById('expense-amount').value = '';
             
             renderExpenseList();
+            if(!document.getElementById('wallet-view-chart').classList.contains('hidden')) {
+                renderChart();
+            }
         }
 
         function deleteExpense(id) {
@@ -1028,6 +1203,33 @@
             expenses = expenses.filter(e => e.id !== id);
             localStorage.setItem('expenses', JSON.stringify(expenses));
             renderExpenseList();
+            if(!document.getElementById('wallet-view-chart').classList.contains('hidden')) {
+                renderChart();
+            }
+        }
+
+        function toggleWalletView(view) {
+            const listBtn = document.getElementById('btn-view-list');
+            const chartBtn = document.getElementById('btn-view-chart');
+            const listView = document.getElementById('wallet-view-list');
+            const chartView = document.getElementById('wallet-view-chart');
+
+            if (view === 'list') {
+                listBtn.classList.add('bg-white', 'text-stone-800', 'shadow-sm');
+                listBtn.classList.remove('text-stone-500');
+                chartBtn.classList.remove('bg-white', 'text-stone-800', 'shadow-sm');
+                chartBtn.classList.add('text-stone-500');
+                listView.classList.remove('hidden');
+                chartView.classList.add('hidden');
+            } else {
+                chartBtn.classList.add('bg-white', 'text-stone-800', 'shadow-sm');
+                chartBtn.classList.remove('text-stone-500');
+                listBtn.classList.remove('bg-white', 'text-stone-800', 'shadow-sm');
+                listBtn.classList.add('text-stone-500');
+                listView.classList.add('hidden');
+                chartView.classList.remove('hidden');
+                renderChart();
+            }
         }
 
         function renderExpenseList() {
@@ -1038,6 +1240,13 @@
             let totalTWD = 0;
             let totalKathy = 0;
             let totalNick = 0;
+
+            const categoryIcons = {
+                'food': '<i class="fa-solid fa-utensils text-rose-400"></i>',
+                'transport': '<i class="fa-solid fa-bus text-blue-400"></i>',
+                'stay': '<i class="fa-solid fa-bed text-indigo-400"></i>',
+                'other': '<i class="fa-solid fa-bag-shopping text-stone-400"></i>'
+            };
 
             list.innerHTML = expenses.map(e => {
                 const twd = Math.round(e.amount / rate);
@@ -1051,15 +1260,22 @@
                 const payerBadgeClass = payer === 'Nick' 
                     ? 'bg-stone-600 text-white' 
                     : 'bg-stone-200 text-stone-600';
+                
+                const catIcon = categoryIcons[e.category || 'other'];
 
                 return `
                     <li class="bg-white p-3 rounded-lg shadow-sm border border-stone-100 flex justify-between items-center">
-                        <div>
-                            <div class="flex items-center gap-2 mb-1">
-                                <span class="text-[10px] font-bold px-1.5 py-0.5 rounded ${payerBadgeClass}">${payer}</span>
-                                <div class="font-medium text-stone-700">${e.name}</div>
+                        <div class="flex items-center gap-3">
+                            <div class="w-8 h-8 rounded-full bg-stone-50 flex items-center justify-center text-xs">
+                                ${catIcon}
                             </div>
-                            <div class="text-xs text-stone-400">${e.date}</div>
+                            <div>
+                                <div class="flex items-center gap-2 mb-1">
+                                    <span class="text-[10px] font-bold px-1.5 py-0.5 rounded ${payerBadgeClass}">${payer}</span>
+                                    <div class="font-medium text-stone-700">${e.name}</div>
+                                </div>
+                                <div class="text-xs text-stone-400">${e.date}</div>
+                            </div>
                         </div>
                         <div class="text-right flex items-center gap-3">
                             <div>
@@ -1079,15 +1295,104 @@
             document.getElementById('total-nick').innerText = `NT$ ${totalNick.toLocaleString()}`;
         }
 
-        // --- LISTS Section Logic ---
-        const defaultChecklist = [
-            { text: "護照、電子簽證 (K-ETA)", checked: false },
-            { text: "韓幣 (現金與 T-Money)", checked: false },
-            { text: "冬衣、保暖帽/手套/圍巾", checked: false },
-            { text: "220V 轉接頭", checked: false },
-            { text: "個人藥品", checked: false }
-        ];
+        function renderChart() {
+            const expenses = JSON.parse(localStorage.getItem('expenses') || '[]');
+            const rate = parseFloat(document.getElementById('exchange-rate').value) || 42;
+            
+            // Prepare Data
+            const categories = {
+                'food': { label: '食', total: 0, color: '#f87171' }, // Red
+                'transport': { label: '交通', total: 0, color: '#60a5fa' }, // Blue
+                'stay': { label: '住宿', total: 0, color: '#2e8f83' }, // Green
+                'other': { label: '其他', total: 0, color: '#a8a29e' } // Stone
+            };
 
+            expenses.forEach(e => {
+                const cat = e.category || 'other';
+                categories[cat].total += Math.round(e.amount / rate);
+            });
+
+            const labels = Object.values(categories).map(c => c.label);
+            const data = Object.values(categories).map(c => c.total);
+            const backgroundColors = Object.values(categories).map(c => c.color);
+
+            // Update Summary List under Chart
+            const summaryList = document.getElementById('category-summary-list');
+            let summaryHTML = '';
+            let total = data.reduce((a, b) => a + b, 0);
+            
+            Object.values(categories).forEach(c => {
+                const percentage = total > 0 ? Math.round((c.total / total) * 100) : 0;
+                summaryHTML += `
+                    <div class="flex justify-between items-center text-sm border-b border-stone-100 pb-2">
+                        <div class="flex items-center gap-2">
+                            <span class="w-3 h-3 rounded-full" style="background-color: ${c.color}"></span>
+                            <span class="text-stone-600">${c.label}</span>
+                        </div>
+                        <div class="text-right">
+                            <span class="font-bold text-stone-800">NT$ ${c.total.toLocaleString()}</span>
+                            <span class="text-xs text-stone-400 ml-1">(${percentage}%)</span>
+                        </div>
+                    </div>
+                `;
+            });
+            summaryList.innerHTML = summaryHTML;
+
+            // Render Chart
+            const ctx = document.getElementById('expenseChart').getContext('2d');
+            
+            if (expenseChart) {
+                expenseChart.destroy();
+            }
+
+            expenseChart = new Chart(ctx, {
+                type: 'doughnut',
+                data: {
+                    labels: labels,
+                    datasets: [{
+                        data: data,
+                        backgroundColor: backgroundColors,
+                        borderWidth: 0,
+                        hoverOffset: 4
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    plugins: {
+                        legend: {
+                            position: 'bottom',
+                            labels: {
+                                font: {
+                                    family: "'Noto Sans TC', sans-serif",
+                                    size: 12
+                                },
+                                usePointStyle: true,
+                                padding: 20
+                            }
+                        },
+                        tooltip: {
+                            callbacks: {
+                                label: function(context) {
+                                    let label = context.label || '';
+                                    if (label) {
+                                        label += ': ';
+                                    }
+                                    if (context.parsed !== null) {
+                                        label += new Intl.NumberFormat('zh-TW', { style: 'currency', currency: 'TWD' }).format(context.parsed);
+                                    }
+                                    return label;
+                                }
+                            }
+                        }
+                    },
+                    layout: {
+                        padding: 10
+                    }
+                }
+            });
+        }
+
+        // --- LISTS Section Logic ---
         function initLists() {
             // Checklist
             let checklist = JSON.parse(localStorage.getItem('checklist'));
@@ -1181,16 +1486,12 @@
 
         // --- Utils ---
         function resetApp() {
-            // Replaced alert() with a console log/confirmation approach for robustness in different environments
             if(confirm('確定要重置所有資料嗎？(記帳和清單都會清空)')) {
                 localStorage.clear();
-                // Re-initialize with defaults after clearing
                 location.reload();
             }
         }
 
     </script>
-</body>
-</html>
 </body>
 </html>
