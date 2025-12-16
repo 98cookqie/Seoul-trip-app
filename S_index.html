@@ -216,7 +216,7 @@
         <div id="section-wallet" class="page-section">
             <div class="bg-stone-100 p-6 pb-8 rounded-b-3xl shadow-inner mb-6">
                 <!-- Rate Setting -->
-                <div class="flex justify-between items-center mb-4">
+                <div class="flex flex-wrap justify-between items-center mb-4 gap-2">
                     <label class="text-xs font-bold text-muji-sub uppercase tracking-wider">Exchange Rate (KRW to TWD)</label>
                     <div class="flex items-center bg-white rounded-lg px-2 py-1 shadow-sm">
                         <span class="text-xs text-stone-400 mr-2">1 TWD ≈</span>
@@ -229,12 +229,16 @@
                 <div class="bg-white rounded-xl p-4 shadow-sm border border-stone-200">
                     <div class="flex flex-col">
                         <label class="text-xs text-muji-sub mb-1">快速換算 (支援 + - * /)</label>
-                        <div class="flex items-end gap-2">
-                            <input type="text" id="calc-input" placeholder="例如: 5000+2500" class="flex-1 text-xl font-mono text-stone-800 border-b border-stone-200 focus:border-muji-primary outline-none py-1 bg-transparent">
+                        <!-- Input Row -->
+                        <div class="mb-2">
+                            <input type="text" id="calc-input" placeholder="例如: 5000+2500" class="w-full text-xl font-mono text-stone-800 border-b border-stone-200 focus:border-muji-primary outline-none py-1 bg-transparent">
+                        </div>
+                        <!-- Result Row (Separated to prevent overflow) -->
+                        <div class="flex justify-between items-end">
                             <span class="text-stone-400 text-xl">=</span>
-                            <div class="text-right">
+                            <div class="text-right w-3/4">
                                 <div id="calc-result-krw" class="text-sm text-stone-500">0 ₩</div>
-                                <div id="calc-result-twd" class="text-2xl font-bold text-muji-highlight">0 NT$</div>
+                                <div id="calc-result-twd" class="text-2xl font-bold text-muji-highlight break-all">0 NT$</div>
                             </div>
                         </div>
                     </div>
@@ -256,14 +260,30 @@
                             <option value="Nick">Nick</option>
                         </select>
                     </div>
-                    <input type="number" id="expense-amount" placeholder="₩ 韓幣金額" class="w-full bg-white border border-stone-200 rounded-lg px-3 py-3 text-sm outline-none focus:border-muji-primary">
+                    <div class="flex gap-2">
+                        <input type="number" id="expense-amount" placeholder="₩ 韓幣金額" class="flex-[2] bg-white border border-stone-200 rounded-lg px-3 py-3 text-sm outline-none focus:border-muji-primary">
+                        <select id="expense-category" class="flex-[1] bg-white border border-stone-200 rounded-lg px-2 py-3 text-sm outline-none focus:border-muji-primary text-stone-700">
+                            <option value="food">食</option>
+                            <option value="transport">交通</option>
+                            <option value="stay">住宿</option>
+                            <option value="other">其他</option>
+                        </select>
+                    </div>
                     <button onclick="addExpense()" class="w-full bg-muji-primary text-white py-3 rounded-lg shadow-md active:scale-95 transition text-sm font-medium tracking-wide">
                         記帳
                     </button>
                 </div>
             </div>
 
-            <!-- Expense List & Summary -->
+            <!-- View Toggle -->
+            <div class="px-6 mb-4 flex justify-center">
+                <div class="bg-stone-100 p-1 rounded-lg inline-flex">
+                    <button onclick="toggleWalletView('list')" id="btn-view-list" class="px-4 py-1.5 rounded-md text-xs font-bold bg-white text-stone-800 shadow-sm transition-all">列表</button>
+                    <button onclick="toggleWalletView('chart')" id="btn-view-chart" class="px-4 py-1.5 rounded-md text-xs font-bold text-stone-500 hover:text-stone-800 transition-all">圖表分析</button>
+                </div>
+            </div>
+
+            <!-- Expense List & Summary (Default View) -->
             <div id="wallet-view-list" class="px-6">
                 <!-- Summary Cards -->
                 <div class="grid grid-cols-2 gap-3 mb-6">
@@ -287,6 +307,16 @@
                 <ul id="expense-list" class="space-y-3 pb-20">
                     <!-- Javascript will render list here -->
                 </ul>
+            </div>
+
+            <!-- Chart View (Hidden by default) -->
+            <div id="wallet-view-chart" class="px-6 hidden pb-20">
+                <div class="bg-white p-4 rounded-xl border border-stone-100 shadow-sm">
+                    <canvas id="expenseChart"></canvas>
+                </div>
+                <div class="mt-6 space-y-3" id="category-summary-list">
+                    <!-- Category breakdown text will go here -->
+                </div>
             </div>
         </div>
 
@@ -469,7 +499,7 @@
                 <div class="bg-stone-800 text-stone-300 p-5 rounded-xl">
                     <h3 class="text-white font-serif mb-3"><i class="fa-solid fa-triangle-exclamation mr-2 text-amber-500"></i>注意事項 & 禁忌</h3>
                     <ul class="text-sm space-y-2 list-disc list-inside">
-                        <li><strong class="text-white">違禁品：</strong>肉類製品(含肉乾、香腸)嚴禁攜帶入境，違者重罰。新鮮水果亦不可入境。EVE等止痛藥為管制藥品，請注意藥品成分。</li>
+                        <li><strong class="text-white">違禁品：</strong>肉類製品(含肉乾、香腸)嚴禁攜帶入境，違者重罰。新鮮水果亦不可入境。</li>
                         <li><strong class="text-white">電壓：</strong>220V，兩孔圓形插座 (需轉接頭)。</li>
                         <li><strong class="text-white">禮儀：</strong>搭乘地鐵請勿坐博愛座。餐廳小菜可免費續加，但請以此為限，勿浪費。</li>
                         <li><strong class="text-white">交通：</strong>Google Maps 僅供查詢大眾運輸，步行導航建議使用 NAVER Map。</li>
@@ -599,23 +629,20 @@
                     { time: "20:30", title: "Check-in", desc: "Seoul N Hostel", icon: "fa-bed", link: "https://maps.app.goo.gl/xuu6swMwXezqVpUk6" },
                     { 
                         time: "21:00", 
-                        title: "晚餐：烤肉", 
-                        desc: "選項如下 (點擊導航)：", 
+                        title: "晚餐：肉典食堂", 
+                        desc: "美味烤肉", 
                         icon: "fa-utensils", 
-                        subItems: [
-                            { name: "肉典食堂", query: "https://maps.app.goo.gl/AwpU7SAtDeqDkPC49" },
-                            { name: "五花肉大總統", query: "https://maps.app.goo.gl/T5AxezQenBJoT6Hp7" }
-                        ],
+                        link: "Yukjeon Sikdang",
                         details: {
-                            story: "首爾的烤肉文化不可錯過。肉典食堂以厚切五花肉與專人代烤聞名；五花肉大總統則以竹筒熟成五花肉為特色。",
-                            guide: "兩家都是東大門/新設洞附近的人氣名店，建議避開正餐尖峰時間以免久候。",
+                            story: "肉典食堂以其頂級的厚切五花肉和木炭烤肉而聞名，是當地人也愛去的排隊名店。餐廳會提供烤肉服務，不用自己動手。",
+                            guide: "建議在晚上8點後前往，可以避開最長的排隊人潮。店內小菜無限續加，特別推薦大醬湯。",
                             tips: [
-                                { type: "必點菜單", text: "厚切五花肉 (Samgyeopsal)、竹筒五花肉。" },
-                                { type: "必吃美食", text: "搭配大醬湯或冷麵解膩。" }
+                                { type: "必點菜單", text: "厚切五花肉 (Samgyeopsal) 與豬頸肉 (Moksal)。" },
+                                { type: "必吃美食", text: "一定要搭配店家特製的蔥絲沙拉和沾鹽一起吃。" }
                             ]
                         }
                     },
-                    { time: "22:30", title: "宵夜：BHC 炸雞", desc: "＋附近逛逛", icon: "fa-drumstick-bite", link: "https://maps.app.goo.gl/GCE9XvyhQftPSuMF6" }
+                    { time: "22:30", title: "宵夜：BHC 炸雞", desc: "＋逛逛附近衣服批發盛況", icon: "fa-drumstick-bite", link: "https://maps.app.goo.gl/GCE9XvyhQftPSuMF6" }
                 ]
             },
             {
@@ -804,7 +831,7 @@
                         link: "Starfield Library",
                         details: {
                             story: "星空圖書館位於 COEX Mall 中心，是首爾的打卡熱點。",
-                            guide: "地鐵2號線至「三成站」，5、6號出口進入。圖書館內座位有限，主要以拍照和休憩為主。",
+                            guide: "圖書館內座位有限，主要以拍照和休憩為主。",
                             tips: [
                                 { type: "重要提醒", text: "最佳拍攝時間為傍晚，燈光全開時。" }
                             ]
@@ -837,7 +864,7 @@
             { text: "轉接頭 (圓孔)", checked: false },
             { text: "T-money 悠遊卡", checked: false },
             { text: "護照", checked: false },
-            { text: "牙刷牙膏", checked: false },
+            { text: "牙刷牙膏 (環保不提供)", checked: false },
             { text: "行動電源", checked: false }
         ];
 
@@ -1045,7 +1072,7 @@
 
 
         // --- WALLET Section Logic ---
-        // Removed chart logic as requested
+        let expenseChart = null; // Global variable for chart instance
 
         function initWallet() {
             // Rate
