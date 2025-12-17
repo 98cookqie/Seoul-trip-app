@@ -1,6 +1,6 @@
 const CACHE_NAME = 'seoul-trip-cache-v4';
 const urlsToCache = [
-    './Seoul_Travel_App_Muji_V3.html',
+    './S_index.html',
     './manifest.json',
     './service-worker.js'
 ];
