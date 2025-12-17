@@ -2,7 +2,7 @@
     "name": "首爾冬日旅",
     "short_name": "SeoulTrip",
     "description": "首爾旅行行程、記帳與清單工具",
-    "start_url": "./S_index.html",
+    "start_url": "./Seoul_Travel_App_Muji_V3.html",
     "display": "standalone",
     "background_color": "#fdfcf8",
     "theme_color": "#44403c",
