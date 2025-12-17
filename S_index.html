@@ -57,6 +57,9 @@
             background-color: #fdfcf8;
             color: #44403c;
             -webkit-tap-highlight-color: transparent;
+            width: 100%;
+            max-width: 100%;
+            overflow-x: hidden;
         }
         
         /* 隱藏 Scrollbar 但保持功能 */
@@ -218,16 +221,16 @@
                 <!-- Rate Setting -->
                 <div class="flex flex-wrap justify-between items-center mb-4 gap-2">
                     <label class="text-xs font-bold text-muji-sub uppercase tracking-wider">Exchange Rate (KRW to TWD)</label>
-                    <div class="flex items-center bg-white rounded-lg px-2 py-1 shadow-sm">
+                    <div class="flex-col sm:flex-row bg-white rounded-lg px-2 py-1 shadow-sm">
                         <span class="text-xs text-stone-400 mr-2">1 TWD ≈</span>
-                        <input type="number" id="exchange-rate" value="42.5" class="w-12 text-right text-sm font-bold text-stone-700 outline-none bg-transparent" onchange="updateRate()">
+                        <input type="number" id="exchange-rate" value="42.5" class="text-right w-full sm:w-1/3 min-w-0 text-sm font-bold text-stone-700 outline-none bg-transparent" onchange="updateRate()">
                         <span class="text-xs text-stone-400 ml-1">KRW</span>
                     </div>
                 </div>
 
                 <!-- Calculator -->
                 <div class="bg-white rounded-xl p-4 shadow-sm border border-stone-200">
-                    <div class="flex flex-col">
+                    <div class="flex-col sm:flex-row">
                         <label class="text-xs text-muji-sub mb-1">快速換算 (支援 + - * /)</label>
                         <!-- Input Row -->
                         <div class="mb-2">
@@ -236,9 +239,9 @@
                         <!-- Result Row (Separated to prevent overflow) -->
                         <div class="flex justify-between items-end">
                             <span class="text-stone-400 text-xl">=</span>
-                            <div class="text-right w-3/4">
+                            <div class="text-right w-full sm:w-1/3 min-w-0">
                                 <div id="calc-result-krw" class="text-sm text-stone-500">0 ₩</div>
-                                <div id="calc-result-twd" class="text-2xl font-bold text-muji-highlight break-all">0 NT$</div>
+                                <div id="calc-result-twd" class="text-lg sm:text-2xl font-bold text-muji-highlight break-words leading-tight">0 NT$</div>
                             </div>
                         </div>
                     </div>
