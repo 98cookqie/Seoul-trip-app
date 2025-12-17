@@ -19,9 +19,6 @@
     <!-- FontAwesome (Icons) -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 
-    <!-- Chart.js for Wallet Charts -->
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-
     <!-- Configuration for Tailwind to match Muji Style -->
     <script>
         tailwind.config = {
@@ -36,16 +33,12 @@
                             accent: '#a8a29e',   /* 裝飾灰 Stone-400 */
                             primary: '#57534e',  /* 主按鈕 Stone-600 */
                             highlight: '#d97706' /* 重點提醒 Amber-600 (柔和橘) */
-                        },
-                        attraction: '#34d399', // Emerald Green
-                        restaurant: '#f87171', // Red
-                        shopping: '#60a5fa',   // Blue
-                        transport: '#a78bfa'  // Violet
+                        }
+                    },
+                    fontFamily: {
+                        sans: ['"Noto Sans TC"', 'sans-serif'],
+                        serif: ['"Noto Serif TC"', 'serif'],
                     }
-                },
-                fontFamily: {
-                    sans: ['"Noto Sans TC"', 'sans-serif'],
-                    serif: ['"Noto Serif TC"', 'serif'],
                 }
             }
         }
@@ -57,9 +50,6 @@
             background-color: #fdfcf8;
             color: #44403c;
             -webkit-tap-highlight-color: transparent;
-            width: 100%;
-            max-width: 100%;
-            overflow-x: hidden;
         }
         
         /* 隱藏 Scrollbar 但保持功能 */
@@ -147,20 +137,27 @@
             justify-content: center;
             align-items: center;
             overflow: hidden;
-            animation: hideIntro 0.5s ease-out 2.8s forwards; /* 2.8秒後淡出，總長約3秒 */
+            animation: hideIntro 0.5s ease-out 2.8s forwards;
+            pointer-events: none;
         }
 
         #intro-text {
             font-family: 'Noto Serif TC', serif;
-            font-size: 4rem; /* 初始大小 */
+            font-size: 4rem;
             font-weight: 700;
             color: #44403c;
             letter-spacing: 0.1em;
             text-transform: uppercase;
-            /* 動畫設定：縮放 */
             animation: zoomText 3s cubic-bezier(0.7, 0, 0.3, 1) forwards;
-            /* 讓縮放中心點偏向左側，模擬放大 S 的感覺 */
             transform-origin: 20% 50%; 
+        }
+        
+        .intro-s {
+            display: inline-block;
+            background-clip: text;
+            -webkit-background-clip: text;
+            color: #44403c;
+            animation: colorMorph 3s ease-in-out forwards;
         }
 
         @keyframes zoomText {
@@ -168,6 +165,12 @@
             15% { transform: scale(1); opacity: 1; }
             50% { transform: scale(1.5); opacity: 1; }
             100% { transform: scale(50); opacity: 0; }
+        }
+        
+        @keyframes colorMorph {
+            0%, 20% { color: #44403c; }
+            40% { color: transparent; background-image: linear-gradient(135deg, #FF9A9E 0%, #FECFEF 100%); }
+            100% { color: transparent; background-image: linear-gradient(135deg, #a18cd1 0%, #fbc2eb 100%); }
         }
 
         @keyframes hideIntro {
@@ -179,7 +182,7 @@
 
     <!-- INTRO ANIMATION -->
     <div id="intro-overlay">
-        <h1 id="intro-text">SEOUL</h1>
+        <h1 id="intro-text"><span class="intro-s">S</span>EOUL</h1>
     </div>
 
     <!-- Header -->
@@ -215,113 +218,112 @@
             </div>
         </div>
 
-        <!-- ================= SECTION 2: WALLET (記帳) ================= -->
+        <!-- ================= SECTION 2: WALLET (記帳) - REDESIGNED ================= -->
         <div id="section-wallet" class="page-section">
-            <div class="bg-stone-100 p-6 pb-8 rounded-b-3xl shadow-inner mb-6">
-                <!-- Rate Setting -->
-                <div class="flex flex-wrap justify-between items-center mb-4 gap-2">
-                    <label class="text-xs font-bold text-muji-sub uppercase tracking-wider">Exchange Rate (KRW to TWD)</label>
-                    <div class="flex-col sm:flex-row bg-white rounded-lg px-2 py-1 shadow-sm">
-                        <span class="text-xs text-stone-400 mr-2">1 TWD ≈</span>
-                        <input type="number" id="exchange-rate" value="42.5" class="text-right w-full sm:w-1/3 min-w-0 text-sm font-bold text-stone-700 outline-none bg-transparent" onchange="updateRate()">
-                        <span class="text-xs text-stone-400 ml-1">KRW</span>
-                    </div>
-                </div>
-
-                <!-- Calculator -->
-                <div class="bg-white rounded-xl p-4 shadow-sm border border-stone-200">
-                    <div class="flex-col sm:flex-row">
-                        <label class="text-xs text-muji-sub mb-1">快速換算 (支援 + - * /)</label>
-                        <!-- Input Row -->
-                        <div class="mb-2 max-w-[85%]">
-                            <input type="text" id="calc-input" placeholder="例如: 5000+2500" 
-                              class="w-full text-xl font-mono text-stone-800 outline-none py-1 bg-transparent">
-                            <div class="h-px bg-stone-200 mt-1"></div>
+            <div class="px-6 py-6 space-y-6">
+                
+                <!-- 1. Converter Card (Dark Style) -->
+                <div class="bg-stone-800 text-white p-5 rounded-2xl shadow-lg">
+                    <!-- Rate Header -->
+                    <div class="flex justify-between items-center mb-4 opacity-80">
+                        <label class="text-xs font-bold tracking-wider">匯率換算 (KRW ➤ TWD)</label>
+                        <div class="flex items-center gap-1">
+                            <span class="text-xs">1 TWD ≈</span>
+                            <input type="number" id="exchange-rate" value="42.5" class="w-10 bg-transparent text-right font-mono border-b border-stone-500 focus:border-white outline-none" onchange="updateRate()">
+                            <span class="text-xs">KRW</span>
                         </div>
-                        <!-- Result Row (Separated to prevent overflow) -->
-                        <div class="flex items-end gap-3 min-w-0">
-                          <span class="text-stone-400 text-xl flex-shrink-0">=</span>
-
-                        <div class="ml-auto text-right min-w-0 max-w-full overflow-hidden">
-                          <div id="calc-result-krw" class="text-sm text-stone-500 truncate">0 ₩
-                         </div>
-                         <div
-                           id="calc-result-twd"
-                           class="text-lg sm:text-2xl font-bold text-muji-highlight whitespace-nowrap truncate"
-                         >
-                           0 NT$
-                        </div>
-                      </div>
                     </div>
-                    <!-- Quick Add Button -->
-                    <button onclick="copyCalcToExpense()" class="w-full mt-3 bg-stone-100 text-stone-600 text-xs py-2 rounded-lg hover:bg-stone-200 transition">
-                        <i class="fa-solid fa-arrow-down mr-1"></i> 把計算結果加入記帳
+                    
+                    <!-- Input / Result -->
+                    <div class="flex flex-col gap-1">
+                        <!-- Input for KRW -->
+                        <input type="number" id="converter-input" placeholder="輸入韓幣..." 
+                               class="text-3xl font-bold bg-transparent outline-none w-full placeholder-stone-600 font-mono" 
+                               oninput="calculateConverter()">
+                        <div class="h-px bg-stone-600 my-2 w-full"></div>
+                        <!-- Result in TWD -->
+                        <div class="flex justify-between items-end">
+                            <span class="text-sm text-stone-400">約台幣</span>
+                            <span id="converter-result" class="text-3xl font-bold text-amber-400 font-mono">0</span>
+                        </div>
+                    </div>
+
+                    <!-- Quick Action -->
+                    <button onclick="fillExpenseForm()" class="mt-4 w-full py-2 bg-stone-700 hover:bg-stone-600 rounded-lg text-xs font-medium text-stone-300 transition flex items-center justify-center gap-2">
+                        <i class="fa-solid fa-arrow-down"></i> 填入記帳金額
                     </button>
                 </div>
-            </div>
 
-            <!-- Expense Form -->
-            <div class="px-6 mb-8">
-                <h3 class="font-serif text-lg mb-4">新增消費</h3>
-                <div class="flex flex-col gap-3">
-                    <div class="flex gap-2">
-                        <input type="text" id="expense-name" placeholder="品項 (如: 烤肉)" class="flex-[2] bg-white border border-stone-200 rounded-lg px-3 py-3 text-sm outline-none focus:border-muji-primary">
-                        <select id="expense-payer" class="flex-[1] bg-white border border-stone-200 rounded-lg px-2 py-3 text-sm outline-none focus:border-muji-primary text-stone-700">
-                            <option value="Kathy">Kathy</option>
-                            <option value="Nick">Nick</option>
-                        </select>
-                    </div>
-                    <div class="flex gap-2">
-                        <input type="number" id="expense-amount" placeholder="₩ 韓幣金額" class="flex-[2] bg-white border border-stone-200 rounded-lg px-3 py-3 text-sm outline-none focus:border-muji-primary">
-                        </select>
-                    </div>
-                    <button onclick="addExpense()" class="w-full bg-muji-primary text-white py-3 rounded-lg shadow-md active:scale-95 transition text-sm font-medium tracking-wide">
-                        記帳
-                    </button>
-                </div>
-            </div>
+                <!-- 2. Add Expense Form -->
+                <div class="bg-white p-5 rounded-2xl shadow-sm border border-stone-100">
+                    <h3 class="text-stone-800 font-bold mb-4 text-lg">新增消費</h3>
+                    <div class="space-y-4">
+                        <!-- Item Name -->
+                        <div>
+                            <label class="block text-xs text-stone-400 mb-1">品項</label>
+                            <input type="text" id="expense-name" placeholder="例如: 烤肉" class="w-full bg-stone-50 border border-stone-200 rounded-xl px-4 py-3 text-stone-800 outline-none focus:border-stone-400 transition">
+                        </div>
 
-            <!-- View Toggle -->
-            <div class="px-6 mb-4 flex justify-center">
-                <div class="bg-stone-100 p-1 rounded-lg inline-flex">
-                    <button onclick="toggleWalletView('list')" id="btn-view-list" class="px-4 py-1.5 rounded-md text-xs font-bold bg-white text-stone-800 shadow-sm transition-all">列表</button>
-                    <button onclick="toggleWalletView('chart')" id="btn-view-chart" class="px-4 py-1.5 rounded-md text-xs font-bold text-stone-500 hover:text-stone-800 transition-all">圖表分析</button>
-                </div>
-            </div>
+                        <!-- Payer Selection (Custom Radio) -->
+                        <div>
+                            <label class="block text-xs text-stone-400 mb-1">付款人</label>
+                            <div class="flex gap-3">
+                                <label class="flex-1 cursor-pointer">
+                                    <input type="radio" name="payer" value="Kathy" class="peer hidden" checked>
+                                    <div class="py-3 rounded-xl border border-stone-200 text-center text-stone-500 peer-checked:bg-stone-800 peer-checked:text-white peer-checked:border-stone-800 transition font-medium">
+                                        Kathy
+                                    </div>
+                                </label>
+                                <label class="flex-1 cursor-pointer">
+                                    <input type="radio" name="payer" value="Nick" class="peer hidden">
+                                    <div class="py-3 rounded-xl border border-stone-200 text-center text-stone-500 peer-checked:bg-stone-800 peer-checked:text-white peer-checked:border-stone-800 transition font-medium">
+                                        Nick
+                                    </div>
+                                </label>
+                            </div>
+                        </div>
 
-            <!-- Expense List & Summary (Default View) -->
-            <div id="wallet-view-list" class="px-6">
-                <!-- Summary Cards -->
-                <div class="grid grid-cols-2 gap-3 mb-6">
-                    <div class="bg-stone-50 p-3 rounded-lg border border-stone-200 text-center">
-                        <span class="block text-xs text-stone-400 mb-1">Kathy Paid</span>
-                        <span id="total-kathy" class="font-bold text-stone-700">NT$ 0</span>
-                    </div>
-                    <div class="bg-stone-50 p-3 rounded-lg border border-stone-200 text-center">
-                        <span class="block text-xs text-stone-400 mb-1">Nick Paid</span>
-                        <span id="total-nick" class="font-bold text-stone-700">NT$ 0</span>
-                    </div>
-                </div>
+                        <!-- Amount -->
+                        <div>
+                            <label class="block text-xs text-stone-400 mb-1">韓幣金額</label>
+                            <div class="relative">
+                                <span class="absolute left-4 top-3 text-stone-400 font-mono">₩</span>
+                                <input type="number" id="expense-amount" placeholder="0" class="w-full bg-stone-50 border border-stone-200 rounded-xl pl-8 pr-4 py-3 text-stone-800 outline-none focus:border-stone-400 transition font-mono text-lg">
+                            </div>
+                        </div>
 
-                <div class="flex justify-between items-end mb-4 border-b border-stone-200 pb-2">
-                    <h3 class="font-serif text-lg">消費紀錄</h3>
-                    <div class="text-right">
-                        <span class="text-xs text-muji-sub block">總支出 (Total)</span>
-                        <span id="total-twd" class="font-bold text-muji-text">NT$ 0</span>
+                        <!-- Save Button -->
+                        <button onclick="addExpense()" class="w-full bg-muji-primary text-white font-bold py-3.5 rounded-xl shadow-md active:scale-[0.98] transition tracking-wide">
+                            記一筆
+                        </button>
                     </div>
                 </div>
-                <ul id="expense-list" class="space-y-3 pb-20">
-                    <!-- Javascript will render list here -->
-                </ul>
-            </div>
 
-            <!-- Chart View (Hidden by default) -->
-            <div id="wallet-view-chart" class="px-6 hidden pb-20">
-                <div class="bg-white p-4 rounded-xl border border-stone-100 shadow-sm">
-                    <canvas id="expenseChart"></canvas>
-                </div>
-                <div class="mt-6 space-y-3" id="category-summary-list">
-                    <!-- Category breakdown text will go here -->
+                <!-- 3. Expense List -->
+                <div>
+                    <div class="flex justify-between items-end mb-3 px-1">
+                        <h3 class="font-bold text-stone-800">消費紀錄</h3>
+                        <div class="text-right">
+                            <p class="text-[10px] text-stone-400">總支出 (預估)</p>
+                            <p id="total-twd" class="font-bold text-amber-600">NT$ 0</p>
+                        </div>
+                    </div>
+                    
+                    <!-- Summary Badges -->
+                    <div class="flex gap-2 mb-4">
+                        <div class="flex-1 bg-white p-2 rounded-lg border border-stone-100 shadow-sm flex flex-col items-center">
+                            <span class="text-[10px] text-stone-400">Kathy 付款</span>
+                            <span id="total-kathy" class="font-bold text-stone-700 text-sm">NT$ 0</span>
+                        </div>
+                        <div class="flex-1 bg-white p-2 rounded-lg border border-stone-100 shadow-sm flex flex-col items-center">
+                            <span class="text-[10px] text-stone-400">Nick 付款</span>
+                            <span id="total-nick" class="font-bold text-stone-700 text-sm">NT$ 0</span>
+                        </div>
+                    </div>
+
+                    <ul id="expense-list" class="space-y-3 pb-24">
+                        <!-- JS Generated Items -->
+                    </ul>
                 </div>
             </div>
         </div>
@@ -635,16 +637,19 @@
                     { time: "20:30", title: "Check-in", desc: "Seoul N Hostel", icon: "fa-bed", link: "https://maps.app.goo.gl/xuu6swMwXezqVpUk6" },
                     { 
                         time: "21:00", 
-                        title: "晚餐：肉典食堂", 
-                        desc: "美味烤肉", 
+                        title: "晚餐：烤肉", 
+                        desc: "選項如下 (點擊導航)：", 
                         icon: "fa-utensils", 
-                        link: "Yukjeon Sikdang",
+                        subItems: [
+                            { name: "肉典食堂", query: "https://maps.app.goo.gl/AwpU7SAtDeqDkPC49" },
+                            { name: "五花肉大總統", query: "https://maps.app.goo.gl/T5AxezQenBJoT6Hp7" }
+                        ],
                         details: {
-                            story: "肉典食堂以其頂級的厚切五花肉和木炭烤肉而聞名，是當地人也愛去的排隊名店。餐廳會提供烤肉服務，不用自己動手。",
-                            guide: "建議在晚上8點後前往，可以避開最長的排隊人潮。店內小菜無限續加，特別推薦大醬湯。",
+                            story: "首爾的烤肉文化不可錯過。肉典食堂以厚切五花肉與專人代烤聞名；五花肉大總統則以竹筒熟成五花肉為特色。",
+                            guide: "兩家都是東大門/新設洞附近的人氣名店，建議避開正餐尖峰時間以免久候。",
                             tips: [
-                                { type: "必點菜單", text: "厚切五花肉 (Samgyeopsal) 與豬頸肉 (Moksal)。" },
-                                { type: "必吃美食", text: "一定要搭配店家特製的蔥絲沙拉和沾鹽一起吃。" }
+                                { type: "必點菜單", text: "厚切五花肉 (Samgyeopsal)、竹筒五花肉。" },
+                                { type: "必吃美食", text: "搭配大醬湯或冷麵解膩。" }
                             ]
                         }
                     },
@@ -1078,8 +1083,6 @@
 
 
         // --- WALLET Section Logic ---
-        let expenseChart = null; // Global variable for chart instance
-
         function initWallet() {
             // Rate
             const savedRate = localStorage.getItem('krw_rate');
@@ -1131,7 +1134,6 @@
             const name = document.getElementById('expense-name').value;
             const amount = parseFloat(document.getElementById('expense-amount').value);
             const payer = document.getElementById('expense-payer').value;
-            // Removed category selection
             
             if (!name || isNaN(amount)) return;
 
@@ -1158,8 +1160,6 @@
             localStorage.setItem('expenses', JSON.stringify(expenses));
             renderExpenseList();
         }
-
-        // Removed toggleWalletView function
 
         function renderExpenseList() {
             const expenses = JSON.parse(localStorage.getItem('expenses') || '[]');
@@ -1209,8 +1209,6 @@
             document.getElementById('total-kathy').innerText = `NT$ ${totalKathy.toLocaleString()}`;
             document.getElementById('total-nick').innerText = `NT$ ${totalNick.toLocaleString()}`;
         }
-
-        // Removed renderChart function
 
         // --- LISTS Section Logic ---
         function initLists() {
