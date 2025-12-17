@@ -233,8 +233,10 @@
                     <div class="flex-col sm:flex-row">
                         <label class="text-xs text-muji-sub mb-1">快速換算 (支援 + - * /)</label>
                         <!-- Input Row -->
-                        <div class="mb-2">
-                            <input type="text" id="calc-input" placeholder="例如: 5000+2500" class="w-full text-xl font-mono text-stone-800 border-b border-stone-200 focus:border-muji-primary outline-none py-1 bg-transparent">
+                        <div class="mb-2 max-w-[85%]">
+                            <input type="text" id="calc-input" placeholder="例如: 5000+2500" 
+                              class="w-full text-xl font-mono text-stone-800 outline-none py-1 bg-transparent">
+                            <div class="h-px bg-stone-200 mt-1"></div>
                         </div>
                         <!-- Result Row (Separated to prevent overflow) -->
                         <div class="flex justify-between items-end">
@@ -265,11 +267,6 @@
                     </div>
                     <div class="flex gap-2">
                         <input type="number" id="expense-amount" placeholder="₩ 韓幣金額" class="flex-[2] bg-white border border-stone-200 rounded-lg px-3 py-3 text-sm outline-none focus:border-muji-primary">
-                        <select id="expense-category" class="flex-[1] bg-white border border-stone-200 rounded-lg px-2 py-3 text-sm outline-none focus:border-muji-primary text-stone-700">
-                            <option value="food">食</option>
-                            <option value="transport">交通</option>
-                            <option value="stay">住宿</option>
-                            <option value="other">其他</option>
                         </select>
                     </div>
                     <button onclick="addExpense()" class="w-full bg-muji-primary text-white py-3 rounded-lg shadow-md active:scale-95 transition text-sm font-medium tracking-wide">
