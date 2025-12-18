@@ -5,34 +5,31 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>首爾冬日旅 | Seoul Trip</title>
     
-    <!-- PWA Manifest -->
-    <link rel="manifest" href="manifest.json">
-
     <!-- Google Fonts -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@300;400;500;700&family=Noto+Serif+TC:wght@400;700&display=swap" rel="stylesheet">
     
-    <!-- Tailwind CSS -->
+    <!-- Tailwind CSS (CDN) -->
     <script src="https://cdn.tailwindcss.com"></script>
     
-    <!-- FontAwesome (Icons) -->
+    <!-- FontAwesome (CDN) -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 
-    <!-- Tailwind Config -->
+    <!-- Tailwind Configuration -->
     <script>
         tailwind.config = {
             theme: {
                 extend: {
                     colors: {
                         muji: {
-                            bg: '#fdfcf8',
-                            card: '#ffffff',
-                            text: '#44403c',
-                            sub: '#78716c',
-                            accent: '#a8a29e',
-                            primary: '#57534e',
-                            highlight: '#d97706'
+                            bg: '#fdfcf8',       /* 米白紙張色 */
+                            card: '#ffffff',     /* 純白卡片 */
+                            text: '#44403c',     /* 深灰 */
+                            sub: '#78716c',      /* 淺灰 */
+                            accent: '#a8a29e',   /* 裝飾灰 */
+                            primary: '#57534e',  /* 主按鈕 */
+                            highlight: '#d97706' /* 重點提醒 (橘) */
                         }
                     },
                     fontFamily: {
@@ -45,26 +42,27 @@
     </script>
 
     <style>
-        /* Global & Reset */
+        /* CSS Reset & Global Styles */
         body {
             background-color: #fdfcf8;
             color: #44403c;
             -webkit-tap-highlight-color: transparent;
             width: 100vw;
-            height: 100dvh; /* Dynamic Viewport Height */
-            overflow-x: hidden;
+            height: 100dvh; /* 使用動態高度避免手機網址列遮擋 */
+            overflow-x: hidden; /* 禁止左右滑動 */
             display: flex;
             flex-direction: column;
         }
         
+        /* Hide Scrollbar */
         .no-scrollbar::-webkit-scrollbar { display: none; }
         .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
 
-        /* 頁面切換動畫 */
+        /* Page Transition Animation */
         .page-section {
             display: none;
             animation: fadeIn 0.3s ease-in-out;
-            padding-bottom: 120px; /* 避開底部導航 */
+            padding-bottom: 120px; /* 底部留白給導航列 */
             width: 100%;
         }
         .page-section.active { display: block; }
@@ -74,17 +72,26 @@
             to { opacity: 1; transform: translateY(0); }
         }
 
-        /* Modal */
-        .modal-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); backdrop-filter: blur(2px); z-index: 999; display: none; opacity: 0; transition: opacity 0.3s ease; }
+        /* Modal Styles */
+        .modal-overlay {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0, 0, 0, 0.5); backdrop-filter: blur(2px);
+            z-index: 999; display: none; opacity: 0; transition: opacity 0.3s ease;
+        }
         .modal-overlay.active { display: block; opacity: 1; }
-        .modal-content { position: absolute; bottom: 0; left: 0; width: 100%; max-height: 85%; background: #fdfcf8; border-top-left-radius: 20px; border-top-right-radius: 20px; transform: translateY(100%); transition: transform 0.3s ease-out; box-shadow: 0 -10px 40px rgba(0,0,0,0.15); overflow-y: auto; }
+        .modal-content {
+            position: absolute; bottom: 0; left: 0; width: 100%; max-height: 85%;
+            background: #fdfcf8; border-top-left-radius: 20px; border-top-right-radius: 20px;
+            transform: translateY(100%); transition: transform 0.3s ease-out;
+            box-shadow: 0 -10px 40px rgba(0,0,0,0.15); overflow-y: auto;
+        }
         .modal-overlay.active .modal-content { transform: translateY(0); }
 
-        /* Input Styles */
+        /* Custom Input Styles */
         .input-ghost { background: transparent; border: none; outline: none; width: 100%; }
         .muji-checkbox:checked { background-color: #57534e; border-color: #57534e; }
 
-        /* Intro Animation */
+        /* Intro Animation Styles */
         #intro-overlay {
             position: fixed; top: 0; left: 0; width: 100vw; height: 100vh;
             background-color: #fdfcf8; z-index: 9999;
@@ -130,7 +137,7 @@
                 <h1 class="font-serif text-3xl text-stone-800 tracking-wide font-bold">SEOUL</h1>
                 <p class="text-sm text-muji-sub mt-1 tracking-widest uppercase">Dec 18 - Dec 21, 2024</p>
             </div>
-            <!-- Removed Right Side Weather/Temp -->
+            <!-- Removed Weather/Temp display as requested -->
         </div>
     </header>
 
@@ -140,10 +147,10 @@
         <!-- ================= SECTION 1: PLAN (行程) ================= -->
         <div id="section-plan" class="page-section active">
             <div class="flex overflow-x-auto no-scrollbar px-6 py-4 gap-3 sticky top-0 bg-muji-bg/95 backdrop-blur-sm z-10 w-full" id="day-tabs">
-                <!-- Javascript renders tabs -->
+                <!-- Javascript will render tabs -->
             </div>
             <div id="itinerary-content" class="px-6 pb-8 space-y-4 w-full">
-                <!-- Javascript renders cards -->
+                <!-- Javascript will render cards -->
             </div>
         </div>
 
@@ -192,6 +199,7 @@
                             <option value="Nick">Nick</option>
                         </select>
                     </div>
+                    <!-- Amount (No Category) -->
                     <input type="number" inputmode="decimal" id="expense-amount" placeholder="₩ 韓幣金額" class="w-full bg-white border border-stone-200 rounded-lg px-3 py-3 text-sm outline-none">
                     
                     <button onclick="addExpense()" class="w-full bg-muji-primary text-white py-3 rounded-lg shadow-md active:scale-95 transition text-sm font-medium tracking-wide">
@@ -271,10 +279,10 @@
                         <span class="text-[10px] text-stone-300">Source: KMA</span>
                     </div>
                     <div class="flex overflow-x-auto no-scrollbar gap-4 pb-2">
-                        <div class="flex flex-col items-center min-w-[60px]"><span class="text-xs text-stone-500 mb-1">12/18</span><i class="fa-solid fa-sun text-2xl text-amber-400 mb-2"></i><span class="text-sm font-bold text-stone-700">8°C</span></div>
-                        <div class="flex flex-col items-center min-w-[60px]"><span class="text-xs text-stone-500 mb-1">12/19</span><i class="fa-solid fa-cloud-sun text-2xl text-stone-400 mb-2"></i><span class="text-sm font-bold text-stone-700">10°C</span></div>
-                        <div class="flex flex-col items-center min-w-[60px]"><span class="text-xs text-stone-500 mb-1">12/20</span><i class="fa-solid fa-rain text-2xl text-blue-200 mb-2"></i><span class="text-sm font-bold text-stone-700">10°C</span></div>
-                        <div class="flex flex-col items-center min-w-[60px]"><span class="text-xs text-stone-500 mb-1">12/21</span><i class="fa-solid fa-sun text-2xl text-stone-300 mb-2"></i><span class="text-sm font-bold text-stone-700">1°C</span></div>
+                        <div class="flex flex-col items-center min-w-[60px]"><span class="text-xs text-stone-500 mb-1">12/18</span><i class="fa-solid fa-sun text-2xl text-amber-400 mb-2"></i><span class="text-sm font-bold text-stone-700">-8°C</span></div>
+                        <div class="flex flex-col items-center min-w-[60px]"><span class="text-xs text-stone-500 mb-1">12/19</span><i class="fa-solid fa-cloud-sun text-2xl text-stone-400 mb-2"></i><span class="text-sm font-bold text-stone-700">°10C</span></div>
+                        <div class="flex flex-col items-center min-w-[60px]"><span class="text-xs text-stone-500 mb-1">12/20</span><i class="fa-solid fa-rain text-2xl text-blue-200 mb-2"></i><span class="text-sm font-bold text-stone-700">-8°C</span></div>
+                        <div class="flex flex-col items-center min-w-[60px]"><span class="text-xs text-stone-500 mb-1">12/21</span><i class="fa-solid fa-cloud text-2xl text-stone-300 mb-2"></i><span class="text-sm font-bold text-stone-700">1°C</span></div>
                     </div>
                 </div>
                 
@@ -306,9 +314,9 @@
                         <div class="flex justify-between"><span>旅館電話</span><span class="font-bold">070-8152-8160</span></div>
                     </div>
                 </div>
-
-                 <!-- 6. Tips (Bottom) -->
-                <div class="bg-stone-800 text-stone-300 p-5 rounded-xl">
+                
+                <!-- 6. Tips (Bottom) -->
+                 <div class="bg-stone-800 text-stone-300 p-5 rounded-xl">
                     <h3 class="text-white font-serif mb-3"><i class="fa-solid fa-triangle-exclamation mr-2 text-amber-500"></i>注意事項 & 禁忌</h3>
                     <ul class="text-sm space-y-2 list-disc list-inside">
                         <li><strong class="text-white">違禁品：</strong>肉類製品(含肉乾、香腸)嚴禁攜帶入境，違者重罰。新鮮水果亦不可入境。</li>
@@ -317,6 +325,7 @@
                         <li><strong class="text-white">交通：</strong>Google Maps 僅供查詢大眾運輸，步行導航建議使用 NAVER Map。</li>
                     </ul>
                 </div>
+                
                 <div class="text-center pt-8">
                     <button onclick="resetApp()" class="text-xs text-stone-300 underline">重置資料 (Reset)</button>
                 </div>
@@ -352,8 +361,6 @@
 
     <!-- JS Logic -->
     <script>
-        // No Service Worker Registration for simplicity
-
         // Data
         const itineraryData = [
             {
@@ -369,9 +376,12 @@
                             { name: "五花肉大總統", query: "https://maps.app.goo.gl/T5AxezQenBJoT6Hp7" }
                         ],
                         details: { 
-                            story: "首爾烤肉文化不可錯過，肉典食堂以其頂級的厚切五花肉和專人代烤出名。五花肉大總統則是以竹筒熟成五花肉為特色。", 
-                            guide: "建議避開尖峰時間以免久候。", 
-                            tips: [{ type: "必點菜單", text: "厚切五花肉 (Samgyeopsal)、竹筒五花肉。"}] 
+                            story: "首爾烤肉名店。肉典食堂以其頂級的厚切五花肉和木炭烤肉而聞名。五花肉大總統利用竹筒醃製五花肉為其特色。", 
+                            guide: "建議避開尖峰時間。肉典食堂有專人代烤服務。", 
+                            tips: [
+                              { type: "必點菜單", text: "厚切五花肉 (Samgyeopsal)、竹筒五花肉。" }
+                              { type: "美食tips", text: "一定要搭配店家特製的蔥絲沙拉和沾鹽一起吃。" }
+                            ] 
                         }
                     },
                     { time: "22:30", title: "宵夜：BHC 炸雞", desc: "＋逛逛附近衣服批發", icon: "fa-drumstick-bite", link: "https://maps.app.goo.gl/GCE9XvyhQftPSuMF6" }
@@ -384,8 +394,8 @@
                     { 
                         time: "08:30", title: "廣藏市場", desc: "綠豆煎餅、麻藥飯捲", icon: "fa-store", link: "Gwangjang Market",
                         details: {
-                            story: "廣藏市場是韓國歷史最悠久的傳統市場，起源於1905年。",
-                            guide: "市場主要分為美食區和布料區。建議在早上前往。",
+                            story: "廣藏市場是韓國歷史最悠久的傳統市場，起源於1905年。它現在已成為首爾最具代表性的美食天堂，保留了傳統市集的喧囂和人情味。",
+                            guide: "市場主要分為美食區和布料區。建議在早上前往，避開晚餐高峰。",
                             tips: [
                                 { type: "必吃美食", text: "綠豆煎餅 (Bindae-tteok)。" },
                                 { type: "必點菜單", text: "麻藥飯捲 (Mayak Gimbap)。" }
@@ -408,9 +418,9 @@
                     { 
                         time: "16:00", title: "N 首爾塔", desc: "搭纜車電梯上山", icon: "fa-tower-broadcast", link: "N Seoul Tower", 
                         details: { 
-                            story: "N 首爾塔位於南山頂，是首爾的地標性建築。塔上觀景台提供360度全景視野，冬季夜晚景色尤其壯觀。", 
-                            guide: "可以到纜車電梯直上纜車搭乘處。上山有多種方式：纜車、循環巴士(02,03,05號)。若想體驗纜車浪漫，需從明洞站步行至纜車搭乘處", 
-                            tips: [{ type: "重要預約代號", text: "如果選擇纜車，建議提前在線上訂票。" }] 
+                            story: "N 首爾塔位於南山頂，是首爾的地標性建築。塔上的數位觀景台提供360度全景視野，冬季夜晚景色尤其壯觀。著名的愛情鎖牆也在此處。", 
+                            guide: "可以到纜車電梯直上纜車搭乘處。上山有多種方式：纜車、循環巴士（02, 03, 05號）。", 
+                            tips: [{ type: "重點提醒", text: "如果選擇纜車，建議提前在線上訂票。" }, ] 
                         } 
                     },
                     { time: "Travel", title: "纜車電梯", desc: "前往搭乘處", isTravel: true, linkUrl: "https://maps.app.goo.gl/vMcPPfzL3UnDCUZ5A" },
@@ -450,7 +460,7 @@
                         }
                     },
                     { time: "Travel", title: "移動", desc: "地鐵 50分鐘", isTravel: true, linkUrl: "https://naver.me/FlcwoRT4" },
-                    { time: "18:00", title: "聖誕市集", desc: "光化門/清溪川", icon: "fa-tree", link: "Gwanghwamun Square" }
+                    { time: "18:00", title: "聖誕氛圍", desc: "光化門/清溪川", icon: "fa-tree", link: "Gwanghwamun Square" }
                 ]
             },
             {
@@ -471,7 +481,7 @@
             renderPlanTabs(); renderPlanContent(0); initWallet(); initLists();
         });
 
-        // Navigation (Updated Logic)
+        // Navigation
         function switchTab(tabId) {
             document.querySelectorAll('.page-section').forEach(el => el.classList.remove('active'));
             document.getElementById(`section-${tabId}`).classList.add('active');
@@ -508,15 +518,9 @@
         function openDetailModal(dIdx, eIdx) {
             const e = itineraryData[dIdx].events[eIdx];
             if(!e.details) { if(e.link && e.link.startsWith('http')) window.open(e.link); return; }
-            document.getElementById('modal-title').innerText = e.title;
-            document.getElementById('modal-time').innerText = e.time;
-            document.getElementById('modal-story').innerText = e.details.story || "";
-            document.getElementById('modal-guide').innerText = e.details.guide || "";
-            
-            const tips = document.getElementById('modal-tips');
-            tips.innerHTML = (e.details.tips||[]).map(t => `<div class="p-3 rounded-lg border bg-stone-50 border-stone-200"><strong class="text-xs font-bold block mb-0.5">${t.type}</strong><p class="text-sm">${t.text}</p></div>`).join('');
+            document.getElementById('modal-title').innerText = e.title; document.getElementById('modal-time').innerText = e.time; document.getElementById('modal-story').innerText = e.details.story || ""; document.getElementById('modal-guide').innerText = e.details.guide || "";
+            const tips = document.getElementById('modal-tips'); tips.innerHTML = (e.details.tips||[]).map(t => `<div class="p-3 rounded-lg border bg-stone-50 border-stone-200"><strong class="text-xs font-bold block mb-0.5">${t.type}</strong><p class="text-sm">${t.text}</p></div>`).join('');
             document.getElementById('modal-tips-container').style.display = e.details.tips ? 'block' : 'none';
-            
             document.getElementById('modal-map-link').href = e.link && e.link.startsWith('http') ? e.link : '#';
             document.getElementById('detail-modal-overlay').classList.add('active');
         }
@@ -527,30 +531,12 @@
         function updateRate() { localStorage.setItem('krw_rate', document.getElementById('exchange-rate').value); renderExpenseList(); calculateTotal(); }
         
         function calculateTotal() {
-            let val = document.getElementById('calc-input').value;
-            const rate = parseFloat(document.getElementById('exchange-rate').value)||42;
-            const cleanVal = val.replace(/,/g, ''); 
-            try { 
-                if(/^[0-9+\-*/.() ]*$/.test(cleanVal) && cleanVal.trim()!=="") { 
-                    const res = new Function('return '+cleanVal)(); 
-                    if(isFinite(res)) { 
-                        document.getElementById('calc-result-krw').innerText = Math.round(res).toLocaleString()+" ₩"; 
-                        document.getElementById('calc-result-twd').innerText = "NT$ "+Math.round(res/rate).toLocaleString(); 
-                    } 
-                } 
-            } catch(e){}
+            let val = document.getElementById('calc-input').value; const rate = parseFloat(document.getElementById('exchange-rate').value)||42; const cleanVal = val.replace(/,/g, '');
+            try { if(/^[0-9+\-*/.() ]*$/.test(cleanVal) && cleanVal.trim()!=="") { const res = new Function('return '+cleanVal)(); if(isFinite(res)) { document.getElementById('calc-result-krw').innerText = Math.round(res).toLocaleString()+" ₩"; document.getElementById('calc-result-twd').innerText = "NT$ "+Math.round(res/rate).toLocaleString(); } } } catch(e){}
         }
-        
-        function copyCalcToExpense() {
-            const val = document.getElementById('calc-result-krw').innerText.replace(/[^0-9]/g,'');
-            if(val != "0") { document.getElementById('expense-amount').value = val; document.getElementById('expense-name').focus(); }
-        }
-        
+        function copyCalcToExpense() { const val = document.getElementById('calc-result-krw').innerText.replace(/[^0-9]/g,''); if(val != "0") { document.getElementById('expense-amount').value = val; document.getElementById('expense-name').focus(); } }
         function addExpense() {
-            const name = document.getElementById('expense-name').value;
-            const amt = parseFloat(document.getElementById('expense-amount').value);
-            const payer = document.getElementById('expense-payer').value;
-            // No category variable used
+            const name = document.getElementById('expense-name').value; const amt = parseFloat(document.getElementById('expense-amount').value); const payer = document.getElementById('expense-payer').value;
             if(!name || isNaN(amt)) return;
             const expenses = JSON.parse(localStorage.getItem('expenses')||'[]');
             expenses.unshift({id: Date.now(), name, amount: amt, payer, date: new Date().toLocaleDateString()});
@@ -558,40 +544,24 @@
             document.getElementById('expense-name').value=''; document.getElementById('expense-amount').value='';
             renderExpenseList();
         }
-        
-        function deleteExpense(id) {
-            const expenses = JSON.parse(localStorage.getItem('expenses')||'[]');
-            localStorage.setItem('expenses', JSON.stringify(expenses.filter(e => e.id !== id)));
-            renderExpenseList();
-        }
-        
+        function deleteExpense(id) { const expenses = JSON.parse(localStorage.getItem('expenses')||'[]'); localStorage.setItem('expenses', JSON.stringify(expenses.filter(e => e.id !== id))); renderExpenseList(); }
         function renderExpenseList() {
-            const expenses = JSON.parse(localStorage.getItem('expenses')||'[]');
-            const rate = parseFloat(document.getElementById('exchange-rate').value)||42;
+            const expenses = JSON.parse(localStorage.getItem('expenses')||'[]'); const rate = parseFloat(document.getElementById('exchange-rate').value)||42;
             let total=0, k=0, n=0;
             document.getElementById('expense-list').innerHTML = expenses.map(e => {
-                const twd = Math.round(e.amount/rate); total+=twd;
-                if(e.payer==='Kathy') k+=twd; else n+=twd;
+                const twd = Math.round(e.amount/rate); total+=twd; if(e.payer==='Kathy') k+=twd; else n+=twd;
                 return `<li class="bg-white p-3 rounded-lg shadow-sm border border-stone-100 flex justify-between items-center"><div><div class="flex items-center gap-2 mb-1"><span class="text-[10px] font-bold px-1.5 py-0.5 rounded ${e.payer==='Nick'?'bg-stone-600 text-white':'bg-stone-200 text-stone-600'}">${e.payer}</span><div class="font-medium text-stone-700">${e.name}</div></div><div class="text-xs text-stone-400">${e.date}</div></div><div class="text-right flex items-center gap-3"><div><div class="text-sm font-bold text-stone-800">₩${e.amount.toLocaleString()}</div><div class="text-xs text-muji-sub">≈ NT$${twd.toLocaleString()}</div></div><button onclick="deleteExpense(${e.id})" class="text-stone-300 hover:text-red-400 px-2"><i class="fa-solid fa-trash-can"></i></button></div></li>`;
             }).join('');
-            document.getElementById('total-twd').innerText = `NT$ ${total.toLocaleString()}`;
-            document.getElementById('total-kathy').innerText = `NT$ ${k.toLocaleString()}`;
-            document.getElementById('total-nick').innerText = `NT$ ${n.toLocaleString()}`;
+            document.getElementById('total-twd').innerText = `NT$ ${total.toLocaleString()}`; document.getElementById('total-kathy').innerText = `NT$ ${k.toLocaleString()}`; document.getElementById('total-nick').innerText = `NT$ ${n.toLocaleString()}`;
         }
 
         // Lists Logic
         function initLists() {
-            let list = JSON.parse(localStorage.getItem('checklist'));
-            if(!list) { list = defaultChecklist; localStorage.setItem('checklist', JSON.stringify(list)); }
-            renderChecklist();
-            const memo = localStorage.getItem('user_memo')||'';
-            document.getElementById('memo-area').value = memo; extractLinks(memo);
+            let list = JSON.parse(localStorage.getItem('checklist')); if(!list) { list = defaultChecklist; localStorage.setItem('checklist', JSON.stringify(list)); } renderChecklist();
+            const memo = localStorage.getItem('user_memo')||''; document.getElementById('memo-area').value = memo; extractLinks(memo);
             document.getElementById('memo-area').addEventListener('input', e => { localStorage.setItem('user_memo', e.target.value); extractLinks(e.target.value); });
         }
-        function renderChecklist() {
-            const list = JSON.parse(localStorage.getItem('checklist'));
-            document.getElementById('checklist-container').innerHTML = list.map((item, i) => `<div class="flex items-center space-x-3 bg-white p-3 rounded-lg shadow-sm border border-stone-100 group"><input type="checkbox" class="muji-checkbox w-5 h-5 flex-shrink-0 rounded border-stone-300 text-stone-600 focus:ring-stone-500" ${item.checked?'checked':''} onchange="toggleCheck(${i})"><input type="text" class="input-ghost text-sm text-stone-700 ${item.checked?'line-through opacity-50':''}" value="${item.text}" onchange="updateChecklistText(${i}, this.value)"><button onclick="deleteChecklistItem(${i})" class="text-stone-300 hover:text-red-400 px-2 opacity-0 group-hover:opacity-100 transition-opacity"><i class="fa-solid fa-xmark"></i></button></div>`).join('');
-        }
+        function renderChecklist() { document.getElementById('checklist-container').innerHTML = JSON.parse(localStorage.getItem('checklist')).map((item, i) => `<div class="flex items-center space-x-3 bg-white p-3 rounded-lg shadow-sm border border-stone-100 group"><input type="checkbox" class="muji-checkbox w-5 h-5 flex-shrink-0 rounded border-stone-300 text-stone-600 focus:ring-stone-500" ${item.checked?'checked':''} onchange="toggleCheck(${i})"><input type="text" class="input-ghost text-sm text-stone-700 ${item.checked?'line-through opacity-50':''}" value="${item.text}" onchange="updateChecklistText(${i}, this.value)"><button onclick="deleteChecklistItem(${i})" class="text-stone-300 hover:text-red-400 px-2 opacity-0 group-hover:opacity-100 transition-opacity"><i class="fa-solid fa-xmark"></i></button></div>`).join(''); }
         function toggleCheck(i) { const l = JSON.parse(localStorage.getItem('checklist')); l[i].checked = !l[i].checked; localStorage.setItem('checklist', JSON.stringify(l)); renderChecklist(); }
         function updateChecklistText(i, val) { const l = JSON.parse(localStorage.getItem('checklist')); l[i].text = val; localStorage.setItem('checklist', JSON.stringify(l)); }
         function addChecklistItem() { const val = document.getElementById('new-checklist-item').value.trim(); if(val) { const l = JSON.parse(localStorage.getItem('checklist'))||[]; l.push({text:val, checked:false}); localStorage.setItem('checklist', JSON.stringify(l)); document.getElementById('new-checklist-item').value=''; renderChecklist(); } }
